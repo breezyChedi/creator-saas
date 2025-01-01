@@ -31,13 +31,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  BookOpen, 
-  Calendar as CalendarIcon, 
+import {
+  BookOpen,
+  Calendar as CalendarIcon,
   Clock,
-  MessageSquare, 
-  User, 
-  Users, 
+  MessageSquare,
+  User,
+  Users,
   Video,
   Menu,
   Settings,
@@ -133,16 +133,16 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import Marquee from './marquee';
 import SpacesView from './chatView';
-import {EmailDialog} from '../email-dialog';
-import {ActivityDialog} from '../activity-dialog'
-import {EventCreationDialog} from '../event-creation-dialog'
+import { EmailDialog } from '../email-dialog';
+import { ActivityDialog } from '../activity-dialog'
+import { EventCreationDialog } from '../event-creation-dialog'
 import { ViewCollectionsDialog } from '../view-collections-dialog';
 import { ResourceCreationDialog } from '../resource-creation-dialog';
 
 const DashboardView = () => {
   const [selectedChat, setSelectedChat] = useState({
     name: "John Doe",
-    avatar: "/avatars/john.jpg", 
+    avatar: "/avatars/john.jpg",
     lastMessage: "Thanks for the help!",
     lastMessageTime: "2:30 PM"
   });
@@ -157,14 +157,14 @@ const DashboardView = () => {
       email: "sarah@example.com"
     },
     {
-      name: "Mike Johnson", 
+      name: "Mike Johnson",
       avatar: "/avatars/mike.jpg",
       email: "mike@example.com"
     },
     {
       name: "Emily Brown",
       avatar: "/avatars/emily.jpg",
-      email: "emily@example.com" 
+      email: "emily@example.com"
     }
   ];
 
@@ -185,7 +185,7 @@ const DashboardView = () => {
             {(() => {
               const { auth } = require('@/firebase/firebaseConfig');
               const [firstName, setFirstName] = useState('');
-              
+
               useEffect(() => {
                 const unsubscribe = auth.onAuthStateChanged(async (user: { displayName: string; }) => {
                   if (user) {
@@ -195,16 +195,16 @@ const DashboardView = () => {
                     setFirstName(firstName);
                   }
                 });
-                
+
                 return () => unsubscribe();
               }, []);
 
               const hour = new Date().getHours();
               let greeting = '';
               if (hour < 12) greeting = 'Good morning';
-              else if (hour < 17) greeting = 'Good afternoon'; 
+              else if (hour < 17) greeting = 'Good afternoon';
               else greeting = 'Good evening';
-              
+
               return `${greeting}, ${firstName || 'there'}!`
             })()}
           </CardTitle>
@@ -268,7 +268,7 @@ const DashboardView = () => {
                 unread: false
               }
             ]);
-            
+
 
             return (
               <>
@@ -276,7 +276,7 @@ const DashboardView = () => {
                   <div className="mb-4 px-2 text-center">
                     <div className="flex justify-center gap-4 mb-4">
                       <Button
-                        variant={currentView === 'activity' ? 'default' : 'outline'} 
+                        variant={currentView === 'activity' ? 'default' : 'outline'}
                         onClick={() => setCurrentView('activity')}
                         className="w-48"
                       >
@@ -330,7 +330,7 @@ const DashboardView = () => {
                     </Card>
                   )}
                 </CardHeader>
-                
+
                 <CardContent className="p-6 h-[calc(100vh-100px)]">
                   <Card className="h-full">
                     <div className="h-full flex flex-col">
@@ -416,30 +416,30 @@ const DashboardView = () => {
                     </div>
                   </Card>
                 </CardContent>
-                  <div className="h-[calc(100vh-var(--header-height)-2rem)]">
-                    <CardFooter className="p-4 flex justify-center">
-                      <Card className="p-4">
-                        <div className="px-2">
-                          <div className="flex flex-col items-center justify-center space-y-3">
-                            <Card className="p-2">
-                              <div className="flex items-center gap-2 text-sm">
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                                <span>Last Updated: {new Date().toLocaleTimeString()}</span>
-                              </div>
-                            </Card>
-                            <Card className="p-2">
-                              <div className="flex items-center gap-2 text-sm">
-                                <Mail className="h-4 w-4 text-muted-foreground" />
-                                <span>
-                                  {currentView === 'inbox' ? '3 unread messages' : '5 new activities'}
-                                </span>
-                              </div>
-                            </Card>
-                          </div>
+                <div className="h-[calc(100vh-var(--header-height)-2rem)]">
+                  <CardFooter className="p-4 flex justify-center">
+                    <Card className="p-4">
+                      <div className="px-2">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <Card className="p-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span>Last Updated: {new Date().toLocaleTimeString()}</span>
+                            </div>
+                          </Card>
+                          <Card className="p-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              <span>
+                                {currentView === 'inbox' ? '3 unread messages' : '5 new activities'}
+                              </span>
+                            </div>
+                          </Card>
                         </div>
-                      </Card>
-                    </CardFooter>
-                  </div>
+                      </div>
+                    </Card>
+                  </CardFooter>
+                </div>
               </>
             );
           })()}
@@ -476,13 +476,13 @@ const DashboardView = () => {
                           avatar: "/avatars/sarah.png"
                         },
                         {
-                          name: "Michael Chen", 
+                          name: "Michael Chen",
                           email: "m.chen@example.com",
                           avatar: "/avatars/michael.png"
                         },
                         {
                           name: "Emma Wilson",
-                          email: "emma.w@example.com", 
+                          email: "emma.w@example.com",
                           avatar: "/avatars/emma.png"
                         },
                         {
@@ -575,7 +575,7 @@ const DashboardView = () => {
                     <h3 className="font-semibold text-base mb-1">{upcomingEvent.name}</h3>
                     <p className="text-sm text-muted-foreground">{upcomingEvent.description}</p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center text-xs justify-center">
                       <Clock className="h-3 w-3 mr-2" />
@@ -615,7 +615,9 @@ const DashboardView = () => {
 
 const ScheduleView = () => {
   const [tasks, setTasks] = useState<any[]>([
+
     // Sample data for better visualization
+    /*
     {
       id: '1',
       title: 'Weekly Team Standup',
@@ -628,7 +630,7 @@ const ScheduleView = () => {
       location: 'Conference Room A'
     },
     {
-      id: '2', 
+      id: '2',
       title: 'Project Deadline',
       description: 'Complete and submit the Q1 project deliverables',
       dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days from now
@@ -641,18 +643,20 @@ const ScheduleView = () => {
       title: 'Client Presentation',
       description: 'Present new features to key stakeholders',
       dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days from now
-      priority: 'high', 
+      priority: 'high',
       status: 'upcoming',
       type: 'meeting',
       attendees: ['client@external.com', 'ceo@example.com'],
       location: 'Virtual - Zoom'
-    }
+    }*/
   ]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'meeting' | 'task'>('all');
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all');
+
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -667,13 +671,51 @@ const ScheduleView = () => {
     return tasks
       .filter(task => {
         const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            task.description.toLowerCase().includes(searchQuery.toLowerCase());
+          task.description.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = filterType === 'all' || task.type === filterType;
         const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
         return matchesSearch && matchesType && matchesPriority;
       })
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   }, [tasks, searchQuery, filterType, filterPriority]);
+
+  const fetchTasks = async () => {
+    try {
+      // Get the current user's ID token
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+      
+      const idToken = await user.getIdToken();
+      
+      const response = await fetch('/api/schedule', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+  
+      if (!response.ok) {
+        console.log('Response status:', response.status);
+        throw new Error('Failed to fetch tasks');
+      }
+  
+      const data = await response.json();
+      setTasks(data.sessions);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch tasks",
+        variant: "destructive"
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
 
   const groupedTasks = useMemo(() => {
     const now = new Date();
@@ -715,14 +757,28 @@ const ScheduleView = () => {
 
   const addTask = async () => {
     try {
+      const token = await auth.currentUser?.getIdToken();
       const newTaskData = {
         ...newTask,
-        id: (tasks.length + 1).toString(),
         status: 'upcoming',
         dueDate: new Date(newTask.dueDate).toISOString()
       };
-      
-      setTasks([...tasks, newTaskData]);
+
+      const response = await fetch('/api/schedule', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newTaskData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add task');
+      }
+
+      const data = await response.json();
+      setTasks([...tasks, data.task]);
       setShowAddDialog(false);
       setNewTask({
         title: '',
@@ -748,24 +804,81 @@ const ScheduleView = () => {
     }
   };
 
-  const updateTaskStatus = (taskId: string, newStatus: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status: newStatus } : task
-    ));
-    
-    toast({
-      title: "Success", 
-      description: "Task status updated"
-    });
+  const updateTaskStatus = async (taskId: string, newStatus: string) => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch('/api/schedule', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          taskId,
+          updates: { status: newStatus }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update task');
+      }
+
+      setTasks(tasks.map(task => 
+        task.id === taskId ? { ...task, status: newStatus } : task
+      ));
+      
+      toast({
+        title: "Success", 
+        description: "Task status updated"
+      });
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task status",
+        variant: "destructive"
+      });
+    }
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-    toast({
-      title: "Success",
-      description: "Task deleted successfully"
-    });
+  // Modify deleteTask function to use API
+  const deleteTask = async (taskId: string) => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/schedule?taskId=${taskId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+
+      setTasks(tasks.filter(task => task.id !== taskId));
+      toast({
+        title: "Success",
+        description: "Task deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive"
+      });
+    }
   };
+
+  // Add loading state handling
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const renderTaskCard = (task: any) => (
     <Card key={task.id} className="relative bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
@@ -819,7 +932,7 @@ const ScheduleView = () => {
                     </CardContent>
                   </Card>
                 )}
-                <Badge 
+                <Badge
                   variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'secondary'}
                   className="capitalize"
                 >
@@ -843,7 +956,7 @@ const ScheduleView = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 {task.attendees && task.attendees.length > 0 && (
                   <div className="flex items-center space-x-2">
                     <div className="flex -space-x-2">
@@ -855,7 +968,7 @@ const ScheduleView = () => {
                         </Avatar>
                       ))}
                       <Button
-                        variant="outline" 
+                        variant="outline"
                         size="sm"
                         className="h-8 w-8 rounded-full border-2 border-white dark:border-slate-900 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
                         onClick={() => {
@@ -918,7 +1031,7 @@ const ScheduleView = () => {
                   <TabsContent value="details" className="space-y-4">
                     <div className="space-y-2">
                       <Label>Time</Label>
-                      <Input type="time" defaultValue={new Date(task.dueDate).toTimeString().slice(0,5)} />
+                      <Input type="time" defaultValue={new Date(task.dueDate).toTimeString().slice(0, 5)} />
                     </div>
                     {task.type === 'meeting' && (
                       <div className="space-y-2">
@@ -962,7 +1075,7 @@ const ScheduleView = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Button 
+            <Button
               variant="outline"
               size="sm"
               className="text-gray-600 hover:text-gray-900 inline-flex items-center"
@@ -980,7 +1093,7 @@ const ScheduleView = () => {
                 </>
               )}
             </Button>
-            <Button 
+            <Button
               variant="outline"
               size="sm"
               className="text-red-600 hover:text-red-900 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-950 inline-flex items-center"
@@ -1066,7 +1179,7 @@ const ScheduleView = () => {
                     </MenubarMenu>
                   </Menubar>
                   <div>
-                  <EventCreationDialog />
+                    <EventCreationDialog />
                   </div>
                 </div>
               </div>
@@ -1105,7 +1218,7 @@ const ScheduleView = () => {
                   </div>
                 </div>
               )}
-              
+
               {groupedTasks.today.length > 0 && (
                 <div className="pt-4">
                   <Card className="bg-white dark:bg-gray-800 shadow-sm">
@@ -1113,9 +1226,9 @@ const ScheduleView = () => {
                       <div className="flex items-center justify-center gap-3">
                         <h3 className="text-blue-500 font-semibold">Today :</h3>
                         <span className="text-blue-500 font-semibold">
-                          {new Date().toLocaleDateString('en-US', { 
+                          {new Date().toLocaleDateString('en-US', {
                             weekday: 'long',
-                            month: 'short', 
+                            month: 'short',
                             day: 'numeric'
                           })}
                         </span>
@@ -1148,7 +1261,7 @@ const ScheduleView = () => {
                             month: 'short',
                             day: 'numeric'
                           })} - {new Date(Date.now() + 6 * 86400000).toLocaleDateString('en-US', {
-                            month: 'short', 
+                            month: 'short',
                             day: 'numeric'
                           })}
                         </span>
@@ -1193,14 +1306,14 @@ const ScheduleView = () => {
               <Label>Title</Label>
               <Input
                 value={newTask.title}
-                onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
               <Textarea
                 value={newTask.description}
-                onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -1208,14 +1321,14 @@ const ScheduleView = () => {
               <Input
                 type="datetime-local"
                 value={newTask.dueDate}
-                onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
+                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label>Type</Label>
-              <Select 
-                value={newTask.type} 
-                onValueChange={(value: 'meeting' | 'task') => setNewTask({...newTask, type: value})}
+              <Select
+                value={newTask.type}
+                onValueChange={(value: 'meeting' | 'task') => setNewTask({ ...newTask, type: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
@@ -1228,9 +1341,9 @@ const ScheduleView = () => {
             </div>
             <div className="space-y-2">
               <Label>Priority</Label>
-              <Select 
-                value={newTask.priority} 
-                onValueChange={(value: 'low' | 'medium' | 'high') => setNewTask({...newTask, priority: value})}
+              <Select
+                value={newTask.priority}
+                onValueChange={(value: 'low' | 'medium' | 'high') => setNewTask({ ...newTask, priority: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
@@ -1248,7 +1361,7 @@ const ScheduleView = () => {
                   <Label>Location</Label>
                   <Input
                     value={newTask.location}
-                    onChange={(e) => setNewTask({...newTask, location: e.target.value})}
+                    onChange={(e) => setNewTask({ ...newTask, location: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1256,7 +1369,7 @@ const ScheduleView = () => {
                   <Input
                     value={newTask.attendees.join(', ')}
                     onChange={(e) => setNewTask({
-                      ...newTask, 
+                      ...newTask,
                       attendees: e.target.value.split(',').map(email => email.trim())
                     })}
                   />
@@ -1342,7 +1455,7 @@ export default function MentorshipPortal() {
     const [currentProfileView, setCurrentProfileView] = useState('details');
     const [profileData, setProfileData] = useState({
       username: auth.currentUser?.email || "johndoe@example.com",
-      fullName: auth.currentUser?.displayName || "John Doe", 
+      fullName: auth.currentUser?.displayName || "John Doe",
       email: auth.currentUser?.email || "johndoe@example.com",
       photoURL: auth.currentUser?.photoURL || "/default-avatar.png",
       bio: "",
@@ -1401,7 +1514,7 @@ export default function MentorshipPortal() {
               <div className="flex items-center justify-center gap-2">
                 <Sun className={`h-4 w-4 transition-opacity ${theme === 'dark' ? 'opacity-50' : 'text-yellow-500'}`} />
               </div>
-              <Switch 
+              <Switch
                 id="theme-mode"
                 checked={theme === 'dark'}
                 onCheckedChange={(checked) => {
@@ -1421,31 +1534,31 @@ export default function MentorshipPortal() {
           </div>
 
           <Button variant="ghost" className="justify-between w-full mt-2 mb-2" onClick={async () => {
-              try {
-                const response = await fetch('/api/profiles', {
-                  method: 'GET',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  }
-                });
-
-                if (!response.ok) {
-                  throw new Error('Failed to fetch profile');
+            try {
+              const response = await fetch('/api/profiles', {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
                 }
+              });
 
-                const data = await response.json();
-                setProfileData(data.profile);
-                setShowProfileDialog(true);
-                setCurrentProfileView('details');
-              } catch (error) {
-                console.error('Error fetching profile:', error);
-                toast({
-                  title: "Error",
-                  description: "Failed to load profile data",
-                  variant: "destructive",
-                  duration: 3000
-                });
+              if (!response.ok) {
+                throw new Error('Failed to fetch profile');
               }
+
+              const data = await response.json();
+              setProfileData(data.profile);
+              setShowProfileDialog(true);
+              setCurrentProfileView('details');
+            } catch (error) {
+              console.error('Error fetching profile:', error);
+              toast({
+                title: "Error",
+                description: "Failed to load profile data",
+                variant: "destructive",
+                duration: 3000
+              });
+            }
           }}>
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
@@ -1490,9 +1603,9 @@ export default function MentorshipPortal() {
                           <AvatarImage src={profileData.photoURL} alt={profileData.fullName} />
                           <AvatarFallback>{profileData.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="absolute bottom-0 right-0 rounded-full bg-background shadow-sm"
                         >
                           <Pencil className="h-4 w-4" />
@@ -1512,7 +1625,7 @@ export default function MentorshipPortal() {
                         <input
                           id="fullName"
                           value={profileData.fullName}
-                          onChange={(e) => setProfileData({...profileData, fullName: e.target.value})}
+                          onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
                           className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                         />
                       </div>
@@ -1522,7 +1635,7 @@ export default function MentorshipPortal() {
                         <input
                           id="username"
                           value={profileData.username}
-                          onChange={(e) => setProfileData({...profileData, username: e.target.value})}
+                          onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                           className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                         />
                       </div>
@@ -1532,7 +1645,7 @@ export default function MentorshipPortal() {
                         <input
                           id="email"
                           value={profileData.email}
-                          onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                          onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                           className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                         />
                       </div>
@@ -1565,7 +1678,7 @@ export default function MentorshipPortal() {
                             id="phone"
                             type="tel"
                             value={profileData.phoneNumber}
-                            onChange={(e) => setProfileData({...profileData, phoneNumber: e.target.value})}
+                            onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
                             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                             placeholder="Enter phone number"
                           />
@@ -1577,7 +1690,7 @@ export default function MentorshipPortal() {
                         <textarea
                           id="bio"
                           value={profileData.bio}
-                          onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                          onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                           className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                           placeholder="Tell us about yourself..."
                         />
@@ -1588,7 +1701,7 @@ export default function MentorshipPortal() {
               </div>
 
               <div className="flex justify-center gap-4 mt-6">
-                <Button 
+                <Button
                   variant="destructive"
                   onClick={() => {
                     localStorage.clear();
@@ -1599,7 +1712,7 @@ export default function MentorshipPortal() {
                   <LogOut className="h-4 w-4" />
                   Logout
                 </Button>
-                <Button 
+                <Button
                   className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 dark:bg-white dark:hover:bg-gray-100"
                   onClick={async () => {
                     try {
@@ -1610,11 +1723,11 @@ export default function MentorshipPortal() {
                         },
                         body: JSON.stringify(profileData)
                       });
-                      
+
                       if (!response.ok) {
                         throw new Error('Failed to save changes');
                       }
-                      
+
                       const data = await response.json();
                       toast({
                         title: "Success",
@@ -1651,7 +1764,7 @@ export default function MentorshipPortal() {
       title: '',
       type: '',
       platform: '',
-      author: '', 
+      author: '',
       description: '',
     });
 
@@ -1678,38 +1791,38 @@ export default function MentorshipPortal() {
     }
 
     return (
-    <div className="space-y-6 pt-10">
+      <div className="space-y-6 pt-10">
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className='pl-10 text-transparent'>sample</CardTitle>
               <Card>
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold pr-5"> {(() => {
-              const { auth } = require('@/firebase/firebaseConfig');
-              const [firstName, setFirstName] = useState('');
-              
-              useEffect(() => {
-                const unsubscribe = auth.onAuthStateChanged(async (user: { displayName: string; }) => {
-                  if (user) {
-                    // Get user's display name and split to get first name
-                    const displayName = user.displayName || '';
-                    const firstName = displayName.split(' ')[0];
-                    setFirstName(firstName);
-                  }
-                });
-                
-                return () => unsubscribe();
-              }, []);
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold pr-5"> {(() => {
+                      const { auth } = require('@/firebase/firebaseConfig');
+                      const [firstName, setFirstName] = useState('');
 
-              return `${firstName || 'there'}'s Library`
-            })()}</h3>
-            <ViewCollectionsDialog />
-            </div>
-          </CardContent>
-        </Card>
-        <ResourceCreationDialog/>
+                      useEffect(() => {
+                        const unsubscribe = auth.onAuthStateChanged(async (user: { displayName: string; }) => {
+                          if (user) {
+                            // Get user's display name and split to get first name
+                            const displayName = user.displayName || '';
+                            const firstName = displayName.split(' ')[0];
+                            setFirstName(firstName);
+                          }
+                        });
+
+                        return () => unsubscribe();
+                      }, []);
+
+                      return `${firstName || 'there'}'s Library`
+                    })()}</h3>
+                    <ViewCollectionsDialog />
+                  </div>
+                </CardContent>
+              </Card>
+              <ResourceCreationDialog />
             </div>
           </CardHeader>
           <CardContent>
@@ -1733,7 +1846,7 @@ export default function MentorshipPortal() {
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{resource.description}</p>
                           </div>
-                          
+
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="ghost" size="sm" className="mt-1">
@@ -1825,7 +1938,7 @@ export default function MentorshipPortal() {
                     {[
                       {
                         platform: "YouTube",
-                        status: "Latest Content", 
+                        status: "Latest Content",
                         content: [
                           {
                             title: "Frontend Development Tips",
@@ -1836,7 +1949,7 @@ export default function MentorshipPortal() {
                           {
                             title: "React Best Practices",
                             views: "32K views",
-                            date: "1 week ago", 
+                            date: "1 week ago",
                             thumbnail: "/youtube-thumb-2.jpg"
                           }
                         ],
@@ -1857,7 +1970,7 @@ export default function MentorshipPortal() {
                           },
                           {
                             caption: "Check out this cool React project! 🚀 #reactjs #javascript",
-                            likes: "3.2K", 
+                            likes: "3.2K",
                             comments: "234",
                             thumbnail: "/instagram-post-2.jpg"
                           }
@@ -1913,8 +2026,8 @@ export default function MentorshipPortal() {
                         }
                       }
                     ].map((platform, i) => (
-                      <Card 
-                        key={i} 
+                      <Card
+                        key={i}
                         className="hover:shadow-md transition-shadow"
                       >
                         <CardContent className="p-4">
@@ -1923,46 +2036,46 @@ export default function MentorshipPortal() {
                               <div className="flex justify-between items-center">
                                 <h4 className="font-medium flex items-center gap-2">
                                   {platform.platform === "YouTube" && (
-                                    <Button 
-                                      variant="ghost" 
+                                    <Button
+                                      variant="ghost"
                                       size="icon"
                                       className="p-0"
                                     >
                                       <svg className="h-5 w-5 dark:text-red-500 text-red-600" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                       </svg>
                                     </Button>
                                   )}
                                   {platform.platform === "TikTok" && (
-                                    <Button 
-                                      variant="ghost" 
+                                    <Button
+                                      variant="ghost"
                                       size="icon"
                                       className="p-0"
                                     >
                                       <svg className="h-5 w-5 dark:text-white text-black" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                                       </svg>
                                     </Button>
                                   )}
                                   {platform.platform === "Twitter" && (
-                                    <Button 
-                                      variant="ghost" 
+                                    <Button
+                                      variant="ghost"
                                       size="icon"
                                       className="p-0"
                                     >
                                       <svg className="h-5 w-5 dark:text-white text-black" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                                       </svg>
                                     </Button>
                                   )}
                                   {platform.platform === "Instagram" && (
-                                    <Button 
-                                      variant="ghost" 
+                                    <Button
+                                      variant="ghost"
                                       size="icon"
                                       className="p-0"
                                     >
                                       <svg className="h-5 w-5 dark:text-white text-black" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                                       </svg>
                                     </Button>
                                   )}
@@ -1978,7 +2091,7 @@ export default function MentorshipPortal() {
                                   <div className="flex items-center gap-3 hover:bg-accent rounded-lg">
                                     {item.thumbnail && (
                                       <div className="w-24 h-16 bg-muted rounded overflow-hidden">
-                                        <div className="w-full h-full bg-center bg-cover" style={{backgroundImage: `url(${item.thumbnail})`}} />
+                                        <div className="w-full h-full bg-center bg-cover" style={{ backgroundImage: `url(${item.thumbnail})` }} />
                                       </div>
                                     )}
                                     <div className="flex-1">
@@ -2012,7 +2125,7 @@ export default function MentorshipPortal() {
                                     </>
                                   )}
                                 </div>
-                                <Button 
+                                <Button
                                   variant="outline"
                                   onClick={() => setCurrentView(platform.platform.toLowerCase())}
                                 >
@@ -2054,7 +2167,7 @@ export default function MentorshipPortal() {
                     <input
                       id="recommended"
                       value={newResource.recommended}
-                      onChange={(e) => setNewResource({...newResource, recommended: e.target.value})}
+                      onChange={(e) => setNewResource({ ...newResource, recommended: e.target.value })}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       placeholder="e.g. Beginners, Advanced Developers"
                     />
@@ -2064,7 +2177,7 @@ export default function MentorshipPortal() {
                     <input
                       id="url"
                       value={newResource.url}
-                      onChange={(e) => setNewResource({...newResource, url: e.target.value})}
+                      onChange={(e) => setNewResource({ ...newResource, url: e.target.value })}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       placeholder="https://"
                     />
@@ -2074,14 +2187,14 @@ export default function MentorshipPortal() {
                     <input
                       id="tags"
                       value={newResource.tags}
-                      onChange={(e) => setNewResource({...newResource, tags: e.target.value})}
+                      onChange={(e) => setNewResource({ ...newResource, tags: e.target.value })}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       placeholder="Enter comma-separated tags"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button 
+                  <Button
                     onClick={() => setShowSecondStep(true)}
                     disabled={!newResource.recommended || !newResource.url || !newResource.tags}
                   >
@@ -2110,13 +2223,13 @@ export default function MentorshipPortal() {
                     <input
                       id="title"
                       value={newResource.title}
-                      onChange={(e) => setNewResource({...newResource, title: e.target.value})}
+                      onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     />
                   </div>
                   <div className="grid gap-2">
                     <label htmlFor="type">Course Type</label>
-                    <Select onValueChange={(value) => setNewResource({...newResource, type: value})}>
+                    <Select onValueChange={(value) => setNewResource({ ...newResource, type: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
@@ -2133,7 +2246,7 @@ export default function MentorshipPortal() {
                     <textarea
                       id="description"
                       value={newResource.description}
-                      onChange={(e) => setNewResource({...newResource, description: e.target.value})}
+                      onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
                       className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       placeholder="Provide a detailed overview of the course content and learning outcomes"
                     />
@@ -2168,7 +2281,7 @@ export default function MentorshipPortal() {
                         author: '',
                         description: '',
                       });
-                      
+
                       setShowSecondStep(false);
                       setShowAddDialog(false);
                     } catch (error) {
@@ -2219,12 +2332,12 @@ export default function MentorshipPortal() {
         }
       },
       {
-        id: "2", 
+        id: "2",
         snippet: {
           title: "React Hooks Deep Dive - useState & useEffect",
           thumbnails: {
             medium: {
-              url: "/thumbnails/react-hooks.jpg" 
+              url: "/thumbnails/react-hooks.jpg"
             }
           },
           publishedAt: "2024-01-10T16:45:00Z"
@@ -2256,7 +2369,7 @@ export default function MentorshipPortal() {
         <div className="w-2/3 h-full flex flex-col px-8">
           {/* Title Section */}
           <h1 className="text-3xl font-bold tracking-tight mb-6">Building a Modern Web Application with React and TypeScript</h1>
-          
+
           {/* Video Player Section */}
           <div className="h-[45%] w-full rounded-xl overflow-hidden shadow-lg">
             <div className="relative w-full h-full">
@@ -2285,7 +2398,7 @@ export default function MentorshipPortal() {
                     <p className="text-sm text-muted-foreground">256K subscribers</p>
                   </div>
                   <Button className="ml-4" variant="default" size="sm">Subscribe</Button>
-                  
+
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -2319,7 +2432,7 @@ export default function MentorshipPortal() {
                               </div>
                             </DialogContent>
                           </Dialog>
-                          
+
                           <Dialog>
                             <DialogTrigger asChild>
                               <MenubarItem>Show Subtitles</MenubarItem>
@@ -2329,7 +2442,7 @@ export default function MentorshipPortal() {
                                 <DialogTitle>Live Subtitles</DialogTitle>
                               </DialogHeader>
                               <div className="grid gap-4 py-4">
-                                <iframe 
+                                <iframe
                                   src="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb&cc_load_policy=1"
                                   className="w-full h-[200px]"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -2378,7 +2491,7 @@ export default function MentorshipPortal() {
             <ScrollArea className="flex-1">
               <div className="space-y-4 p-6">
                 {videos.map((video) => (
-                  <div 
+                  <div
                     key={video.id}
                     className="group p-3 hover:bg-accent/50 rounded-lg cursor-pointer transition-colors"
                   >
@@ -2446,7 +2559,7 @@ export default function MentorshipPortal() {
         id: "2",
         caption: "JavaScript Tips & Tricks ⚡️",
         stats: {
-          likes: "32K", 
+          likes: "32K",
           comments: "890",
           shares: "1.5K",
           views: "180K"
@@ -2483,7 +2596,7 @@ export default function MentorshipPortal() {
                 Pro
               </div>
             </div>
-            
+
             <div className="flex flex-col items-center">
               <div className="flex flex-col items-center mb-2">
                 <h2 className="text-2xl font-bold">{profile.name}</h2>
@@ -2597,7 +2710,7 @@ export default function MentorshipPortal() {
         statistics: {
           retweetCount: "2.1K",
           likeCount: "9.3K",
-          replyCount: "156", 
+          replyCount: "156",
           viewCount: "78K"
         }
       },
@@ -2709,7 +2822,7 @@ export default function MentorshipPortal() {
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent>
                     <Card className="bg-accent/5 border-0">
                       <CardContent className="py-3">
@@ -2717,10 +2830,10 @@ export default function MentorshipPortal() {
                         <p className="mt-2 text-muted-foreground whitespace-pre-line">{tweet.snippet.description}</p>
                       </CardContent>
                     </Card>
-                    
+
                     {tweet.snippet.thumbnails?.medium.url && (
                       <Card className="mt-4 overflow-hidden border-0">
-                        <img 
+                        <img
                           src={tweet.snippet.thumbnails.medium.url}
                           alt=""
                           className="w-full rounded-lg"
@@ -2899,7 +3012,7 @@ export default function MentorshipPortal() {
       </div>
     );
   };
-  
+
   const CourseView = () => {
     const [courses, setCourses] = useState<any[]>([]);
     const [isAdminView, setIsAdminView] = useState(false);
@@ -2965,7 +3078,7 @@ export default function MentorshipPortal() {
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-6">
-            
+
             {/* Course Content Navigation */}
             <div className="md:col-span-1 flex flex-col h-full">
               <div className="font-semibold mb-4">Course Modules</div>
@@ -2973,7 +3086,7 @@ export default function MentorshipPortal() {
                 <div className="relative">
                   {/* Vertical line connecting modules */}
                   <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-border" />
-                  
+
                   {[
                     {
                       title: "Introduction to Advanced JS",
@@ -2984,7 +3097,7 @@ export default function MentorshipPortal() {
                       ]
                     },
                     {
-                      title: "Closures & Scope", 
+                      title: "Closures & Scope",
                       completed: false,
                       current: true,
                       lessons: [
@@ -3032,7 +3145,7 @@ export default function MentorshipPortal() {
                   ].map((module, i) => {
                     // Check if all lessons are completed
                     const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
-                    
+
                     const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
                       try {
                         // Mark the lesson as completed
@@ -3060,27 +3173,27 @@ export default function MentorshipPortal() {
                     };
 
                     return (
-                    <div key={i} className="mb-6 relative">
-                      <div className={`
+                      <div key={i} className="mb-6 relative">
+                        <div className={`
                         border rounded-lg p-4
                         ${module.current ? 'border-primary bg-accent shadow-sm' : 'border-border'}
                       `}>
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className={`
                             w-5 h-5 rounded-full z-10 flex items-center justify-center
                             ${isModuleCompleted ? 'bg-primary' : module.current ? 'border-2 border-primary' : 'border-2 border-muted-foreground'}
                           `}>
-                            {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                              {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                            </div>
+                            <span className="font-medium">{module.title}</span>
                           </div>
-                          <span className="font-medium">{module.title}</span>
-                        </div>
-                        
-                        <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
-                          {module.lessons.map((lesson, j) => (
-                            <button
-                              key={j}
-                              onClick={() => handleLessonClick(lesson.url, i, j)}
-                              className={`
+
+                          <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
+                            {module.lessons.map((lesson, j) => (
+                              <button
+                                key={j}
+                                onClick={() => handleLessonClick(lesson.url, i, j)}
+                                className={`
                                 block w-full text-left flex items-center gap-2 p-2 rounded-md 
                                 transition-all duration-200 ease-in-out
                                 hover:bg-accent/50 hover:text-primary hover:-translate-y-0.5
@@ -3089,18 +3202,19 @@ export default function MentorshipPortal() {
                                 ${lesson.current ? 'bg-accent/50 text-primary font-medium' : ''}
                                 ${lesson.completed ? 'text-muted-foreground' : ''}
                               `}
-                            >
-                              <div className={`
+                              >
+                                <div className={`
                                 w-3 h-3 rounded-full
                                 ${lesson.completed ? 'bg-primary/60' : lesson.current ? 'border-2 border-primary' : 'border border-muted-foreground'}
                               `} />
-                              <span className="text-sm">{lesson.name}</span>
-                            </button>
-                          ))}
+                                <span className="text-sm">{lesson.name}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )})}
+                    )
+                  })}
                 </div>
               </ScrollArea>
 
@@ -3160,7 +3274,7 @@ export default function MentorshipPortal() {
             <div className="md:col-span-2 space-y-6">
               <div>
                 <h3 className="font-semibold text-lg mb-4">Lexical Scope</h3>
-                
+
                 {/* Video Player */}
                 <Card className="mb-6">
                   <CardContent className="p-4">
@@ -3216,7 +3330,7 @@ export default function MentorshipPortal() {
                             <div className="font-medium">Question 1</div>
                             <div className="text-sm mt-2">What is the main purpose of closures in JavaScript?</div>
                           </Card>
-                          
+
                           <Card className="p-4">
                             <RadioGroup className="space-y-3">
                               <Card className="p-3 hover:bg-accent transition-colors">
@@ -3269,8 +3383,8 @@ export default function MentorshipPortal() {
             <Badge variant="secondary">Progress: 45%</Badge>
           </div>
         </CardHeader>
-        
-        
+
+
         <CardContent>
           <div className="grid md:grid-cols-3 gap-6">
             {/* Course Content Navigation */}
@@ -3280,7 +3394,7 @@ export default function MentorshipPortal() {
                 <div className="relative">
                   {/* Vertical line connecting modules */}
                   <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-border" />
-                  
+
                   {[
                     {
                       title: "Introduction to Advanced JS",
@@ -3291,7 +3405,7 @@ export default function MentorshipPortal() {
                       ]
                     },
                     {
-                      title: "Closures & Scope", 
+                      title: "Closures & Scope",
                       completed: false,
                       current: true,
                       lessons: [
@@ -3339,7 +3453,7 @@ export default function MentorshipPortal() {
                   ].map((module, i) => {
                     // Check if all lessons are completed
                     const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
-                    
+
                     const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
                       try {
                         // Mark the lesson as completed
@@ -3367,27 +3481,27 @@ export default function MentorshipPortal() {
                     };
 
                     return (
-                    <div key={i} className="mb-6 relative">
-                      <div className={`
+                      <div key={i} className="mb-6 relative">
+                        <div className={`
                         border rounded-lg p-4
                         ${module.current ? 'border-primary bg-accent shadow-sm' : 'border-border'}
                       `}>
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className={`
                             w-5 h-5 rounded-full z-10 flex items-center justify-center
                             ${isModuleCompleted ? 'bg-primary' : module.current ? 'border-2 border-primary' : 'border-2 border-muted-foreground'}
                           `}>
-                            {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                              {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                            </div>
+                            <span className="font-medium">{module.title}</span>
                           </div>
-                          <span className="font-medium">{module.title}</span>
-                        </div>
-                        
-                        <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
-                          {module.lessons.map((lesson, j) => (
-                            <button
-                              key={j}
-                              onClick={() => handleLessonClick(lesson.url, i, j)}
-                              className={`
+
+                          <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
+                            {module.lessons.map((lesson, j) => (
+                              <button
+                                key={j}
+                                onClick={() => handleLessonClick(lesson.url, i, j)}
+                                className={`
                                 block w-full text-left flex items-center gap-2 p-2 rounded-md 
                                 transition-all duration-200 ease-in-out
                                 hover:bg-accent/50 hover:text-primary hover:-translate-y-0.5
@@ -3396,18 +3510,19 @@ export default function MentorshipPortal() {
                                 ${lesson.current ? 'bg-accent/50 text-primary font-medium' : ''}
                                 ${lesson.completed ? 'text-muted-foreground' : ''}
                               `}
-                            >
-                              <div className={`
+                              >
+                                <div className={`
                                 w-3 h-3 rounded-full
                                 ${lesson.completed ? 'bg-primary/60' : lesson.current ? 'border-2 border-primary' : 'border border-muted-foreground'}
                               `} />
-                              <span className="text-sm">{lesson.name}</span>
-                            </button>
-                          ))}
+                                <span className="text-sm">{lesson.name}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )})}
+                    )
+                  })}
                 </div>
               </ScrollArea>
 
@@ -3467,12 +3582,12 @@ export default function MentorshipPortal() {
             <div className="md:col-span-2 space-y-6">
               <div>
                 <h3 className="font-semibold text-lg mb-4">Lexical Scope</h3>
-                
+
                 {/* Video Player */}
                 <Card className="mb-4">
                   <CardContent className="p-4">
                     <div className="aspect-video bg-accent rounded-lg flex items-center justify-center">
-                    <HeroVideoDialogDemoTopInBottomOut />
+                      <HeroVideoDialogDemoTopInBottomOut />
                     </div>
                   </CardContent>
                 </Card>
@@ -3509,8 +3624,8 @@ export default function MentorshipPortal() {
 
                       <div>
                         <label className="block text-sm font-medium mb-2">External Resources</label>
-                        <input 
-                          type="url" 
+                        <input
+                          type="url"
                           placeholder="Enter Google Drive or external link"
                           className="w-full rounded-md border border-input px-3 py-2"
                         />
@@ -3554,7 +3669,7 @@ export default function MentorshipPortal() {
 
                         <div className="space-y-4">
                           <label className="block text-sm font-medium">Answer Options</label>
-                          
+
                           <div className="space-y-3">
                             {/* Dynamic answer options based on type */}
                             <div className="flex items-center gap-2">
@@ -3564,7 +3679,7 @@ export default function MentorshipPortal() {
                                 className="flex-1 rounded-md border border-input px-3 py-2"
                               />
                               <div className="flex items-center gap-2">
-                                <input 
+                                <input
                                   type="checkbox"
                                   id="correct-1"
                                   className="h-4 w-4 rounded border-gray-300"
@@ -3579,8 +3694,8 @@ export default function MentorshipPortal() {
                             </div>
                           </div>
 
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="w-full"
                           >
@@ -3861,8 +3976,8 @@ export default function MentorshipPortal() {
                       </div>
                     )}
 
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       onClick={() => {
                         setSelectedMember(member);
                         setShowProfileDialog(true);
@@ -3988,7 +4103,7 @@ export default function MentorshipPortal() {
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="mt-6 flex justify-end gap-4">
                 <Menubar className="border-none bg-transparent p-0">
                   <MenubarMenu>
@@ -3998,8 +4113,8 @@ export default function MentorshipPortal() {
                     <MenubarContent className="min-w-[12rem] overflow-hidden rounded-md border border-neutral-200 bg-white p-1 text-neutral-950 shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
                       {Object.entries(selectedMember?.socials || {}).map(([platform, url]) => (
                         url && (
-                          <MenubarItem 
-                            key={platform} 
+                          <MenubarItem
+                            key={platform}
                             className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-neutral-100 focus:text-neutral-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-neutral-800 dark:focus:text-neutral-50"
                             onClick={() => window.open(url, '_blank')}
                           >
@@ -4013,14 +4128,14 @@ export default function MentorshipPortal() {
                           </MenubarItem>
                         )
                       ))}
-                      <MenubarSeparator className="-mx-1 my-1 h-px bg-neutral-100 dark:bg-neutral-800"/>
+                      <MenubarSeparator className="-mx-1 my-1 h-px bg-neutral-100 dark:bg-neutral-800" />
                       <MenubarSub>
                         <MenubarSubTrigger>
                           <MessageSquare className="h-4 w-4 mr-2" />
                           Contact Options
                         </MenubarSubTrigger>
                         <MenubarSubContent>
-                          <MenubarItem 
+                          <MenubarItem
                             onClick={() => {
                               // Handle direct message
                               if (selectedMember) {
@@ -4052,7 +4167,7 @@ export default function MentorshipPortal() {
                           Mentorship
                         </MenubarSubTrigger>
                         <MenubarSubContent>
-                          <MenubarItem 
+                          <MenubarItem
                             onClick={() => {
                               if (selectedMember) {
                                 toast({
@@ -4113,13 +4228,13 @@ export default function MentorshipPortal() {
         {currentView === 'dashboard' && <DashboardView />}
         {currentView === 'spaces' && <SpacesView />}
         {currentView === 'schedule' && <ScheduleView />}
-        {currentView === 'resources' && <ResourcesView/>}
-        {currentView === 'course' && <CourseView/>}
-        {currentView === 'connect' && <ConnectView/>}
-        {currentView === 'youtube' && <YoutubeView/>}
-        {currentView === 'tiktok' && <TikTokView/>}
-        {currentView === 'twitter' && <TwitterView/>}
-        {currentView === 'instagram' && <InstagramView/>}
+        {currentView === 'resources' && <ResourcesView />}
+        {currentView === 'course' && <CourseView />}
+        {currentView === 'connect' && <ConnectView />}
+        {currentView === 'youtube' && <YoutubeView />}
+        {currentView === 'tiktok' && <TikTokView />}
+        {currentView === 'twitter' && <TwitterView />}
+        {currentView === 'instagram' && <InstagramView />}
       </div>
     </div>
   );

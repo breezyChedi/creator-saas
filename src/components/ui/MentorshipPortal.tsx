@@ -668,10 +668,13 @@ const ScheduleView = () => {
   });
 
   const filteredTasks = useMemo(() => {
+    if (!tasks) return [];
+    
     return tasks
       .filter(task => {
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.description.toLowerCase().includes(searchQuery.toLowerCase());
+        if (!task) return false;
+        const matchesSearch = task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.description?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = filterType === 'all' || task.type === filterType;
         const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
         return matchesSearch && matchesType && matchesPriority;
@@ -681,34 +684,29 @@ const ScheduleView = () => {
 
   const fetchTasks = async () => {
     try {
-      // Get the current user's ID token
       const user = auth.currentUser;
       if (!user) {
         throw new Error('No user logged in');
       }
       
-      const idToken = await user.getIdToken();
+      const response = await fetch('/api/schedule');
       
-      const response = await fetch('/api/schedule', {
-        headers: {
-          'Authorization': `Bearer ${idToken}`
-        }
-      });
-  
       if (!response.ok) {
-        console.log('Response status:', response.status);
         throw new Error('Failed to fetch tasks');
       }
   
       const data = await response.json();
-      setTasks(data.sessions);
+      setTasks(data.tasks || []); // Ensure we always set an array, even if empty
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      setTasks([]); // Set empty array on error
       toast({
         title: "Error",
         description: "Failed to fetch tasks",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -718,6 +716,15 @@ const ScheduleView = () => {
 
 
   const groupedTasks = useMemo(() => {
+    if (!filteredTasks) return {
+      overdue: [],
+      today: [],
+      tomorrow: [],
+      thisWeek: [],
+      later: [],
+      completed: []
+    };
+  
     const now = new Date();
     const groups = {
       overdue: [] as typeof tasks,
@@ -727,18 +734,20 @@ const ScheduleView = () => {
       later: [] as typeof tasks,
       completed: [] as typeof tasks,
     };
-
+  
     filteredTasks.forEach(task => {
+      if (!task) return;
+      
       if (task.status === 'completed') {
         groups.completed.push(task);
         return;
       }
-
+  
       const taskDate = new Date(task.dueDate);
       const isToday = taskDate.toDateString() === now.toDateString();
       const isTomorrow = taskDate.toDateString() === new Date(now.getTime() + 86400000).toDateString();
       const isThisWeek = taskDate <= new Date(now.getTime() + 7 * 86400000);
-
+  
       if (taskDate < now && !isToday) {
         groups.overdue.push(task);
       } else if (isToday) {
@@ -751,7 +760,7 @@ const ScheduleView = () => {
         groups.later.push(task);
       }
     });
-
+  
     return groups;
   }, [filteredTasks]);
 

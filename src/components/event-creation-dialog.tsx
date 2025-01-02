@@ -1,5 +1,7 @@
 "use client"
 
+import { auth, db } from "@/firebase/firebaseConfig"; // Add this import
+import { collection, doc, updateDoc, arrayUnion, getDoc, setDoc } from "firebase/firestore";
 import { useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -22,6 +24,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Calendar } from "./ui/calendar"
+import { useToast } from '@/hooks/use-toast';
+
+const {toast} = useToast();
 
 type EventFormData = {
   date: Date
@@ -48,12 +53,59 @@ export function EventCreationDialog() {
   const [step, setStep] = useState(1)
   const { control, register, handleSubmit, formState: { errors }, watch } = useForm<EventFormData>()
 
-  const onSubmit = (data: EventFormData) => {
-    console.log(data)
-    // Here you would typically save the event data
-    setOpen(false)
-    setStep(1)
-  }
+  const onSubmit = async (data: EventFormData) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create events",
+          variant: "destructive"
+        });
+        return;
+      }
+  
+      // Create the event object
+      const eventData = {
+        ...data,
+        createdAt: new Date().toISOString(),
+        createdBy: user.uid,
+        status: 'upcoming'
+      };
+  
+      // Reference to user's schedule document
+      const scheduleRef = doc(db, 'User_Data', user.uid, 'schedule', 'tasks');
+  
+      // Get the current document
+      const scheduleDoc = await getDoc(scheduleRef);
+  
+      if (!scheduleDoc.exists()) {
+        // If document doesn't exist, create it with an array containing the new event
+        await setDoc(scheduleRef, {
+          tasks: [eventData]
+        });
+      } else {
+        // If document exists, update it by adding the new event to the tasks array
+        await updateDoc(scheduleRef, {
+          tasks: arrayUnion(eventData)
+        });
+      }
+  
+      toast({
+        title: "Success",
+        description: "Event created successfully",
+      });
+  
+      setOpen(false);
+      setStep(1);
+    } catch (error) {
+      console.error("Error creating event:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create event",
+        variant: "destructive"
+      });
+    }
 
   const nextStep = () => setStep(step + 1)
   const prevStep = () => setStep(step - 1)
@@ -248,6 +300,7 @@ export function EventCreationDialog() {
       </DialogContent>
     </Dialog>
   )
+}
 }
 
 // export default EventCreationDialog();

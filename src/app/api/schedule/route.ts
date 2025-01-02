@@ -44,11 +44,19 @@ export async function GET(request: Request) {
       const scheduleDoc = await scheduleRef.get();
       
       if (!scheduleDoc.exists) {
+        // Create empty tasks document if it doesn't exist
+        await scheduleRef.set({
+          tasks: []
+        });
         return NextResponse.json({ tasks: [] });
       }
 
-      const tasks = scheduleDoc.data()?.tasks || [];
-
+      const scheduleData = scheduleDoc.data();
+      if (!scheduleData || !scheduleData.tasks) {
+        return NextResponse.json({ tasks: [] });
+      }
+      
+      const tasks = scheduleData.tasks;
       return NextResponse.json({ tasks });
 
     } catch (authError) {

@@ -927,8 +927,11 @@ console.log('Processed date:', taskDate);
 const renderTaskCard = (task: any) => {
 
   console.log("render task date: ", task.date)
-  const taskDate = task.date.toDate ? task.date.toDate() : new Date(task.date);
+  const taskDate = new Date(task.date._seconds * 1000)
+  //const taskDate = task.date.toDate ? task.date.toDate() : new Date(task.date);
   const formattedDate = taskDate.toLocaleDateString();
+  console.log("taskDate: ", taskDate)
+  console.log("formattedDate: ", formattedDate)
 
   const getCombinedDateTime = (date: Date, timeString: string) => {
     if (!date || !timeString) return new Date();
@@ -940,7 +943,9 @@ const renderTaskCard = (task: any) => {
     return combinedDate;
   };
 
-  const taskDateTime = getCombinedDateTime(new Date(task.date), task.time);
+  const taskDateTime = getCombinedDateTime(taskDate, task.time);
+
+  console.log("taskDateTime: ", taskDateTime)
 
 
    return (
@@ -1057,7 +1062,7 @@ const renderTaskCard = (task: any) => {
               <div className="text-sm text-gray-500 flex items-center">
                 <span>{task.type === 'meeting' ? 'Meeting' : 'Task'}</span>
                 <span className="mx-2">•</span>
-                <span>Created {new Date(task.dueDate).toLocaleDateString()}</span>
+                <span>Created {taskDate.toLocaleDateString()}</span>
               </div>
             </CardContent>
           </Card>
@@ -1086,13 +1091,13 @@ const renderTaskCard = (task: any) => {
                   <TabsContent value="date" className="space-y-4">
                     <div className="space-y-2">
                       <Label>Due Date</Label>
-                      <Input type="date" defaultValue={new Date(task.dueDate).toISOString().split('T')[0]} />
+                      <Input type="date" defaultValue={taskDate.toISOString().split('T')[0]} />
                     </div>
                   </TabsContent>
                   <TabsContent value="details" className="space-y-4">
                     <div className="space-y-2">
                       <Label>Time</Label>
-                      <Input type="time" defaultValue={new Date(task.dueDate).toTimeString().slice(0, 5)} />
+                      <Input type="time" defaultValue={task.time} />
                     </div>
                     {task.type === 'meeting' && (
                       <div className="space-y-2">

@@ -650,6 +650,24 @@ const ScheduleView = () => {
       location: 'Virtual - Zoom'
     }*/
   ]);
+
+  const processTaskDate = (task: any) => {
+    if (!task.date || !task.time) return new Date(); // Return current date as fallback
+  
+    // Handle Firestore Timestamp
+    const timestamp = task.date.toDate ? task.date.toDate() : new Date(task.date);
+    
+    // Parse the time string
+    const [hours, minutes] = task.time.split(':').map(Number);
+    
+    // Create new date object and set hours/minutes
+    const combinedDate = new Date(timestamp);
+    combinedDate.setHours(hours, minutes, 0, 0);
+    
+    return combinedDate;
+  };
+
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -714,7 +732,6 @@ const ScheduleView = () => {
     fetchTasks();
   }, []);
 
-
   const groupedTasks = useMemo(() => {
     if (!filteredTasks) return {
       overdue: [],
@@ -743,7 +760,26 @@ const ScheduleView = () => {
         return;
       }
   
-      const taskDate = new Date(task.dueDate);
+      // Convert Firestore timestamp to Date object
+      let taskDate;
+      if (task.date && task.time) {
+        // Handle Firestore timestamp conversion
+        const timestamp = task.date;
+        const date = new Date(timestamp._seconds * 1000); // Convert seconds to milliseconds
+        
+        // Parse time string
+        const [hours, minutes] = task.time.split(':').map(Number);
+        
+        // Set the hours and minutes
+        taskDate = new Date(date);
+        taskDate.setHours(hours, minutes, 0, 0);
+      } else {
+        taskDate = new Date();
+      }
+      console.log('Task date raw:', task.date);
+console.log('Task time:', task.time);
+console.log('Processed date:', taskDate);
+  
       const isToday = taskDate.toDateString() === now.toDateString();
       const isTomorrow = taskDate.toDateString() === new Date(now.getTime() + 86400000).toDateString();
       const isThisWeek = taskDate <= new Date(now.getTime() + 7 * 86400000);
@@ -891,6 +927,8 @@ const ScheduleView = () => {
 const renderTaskCard = (task: any) => {
 
   console.log("render task date: ", task.date)
+  const taskDate = task.date.toDate ? task.date.toDate() : new Date(task.date);
+  const formattedDate = taskDate.toLocaleDateString();
 
   const getCombinedDateTime = (date: Date, timeString: string) => {
     if (!date || !timeString) return new Date();

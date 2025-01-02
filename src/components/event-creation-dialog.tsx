@@ -66,10 +66,25 @@ const {toast} = useToast();
         });
         return;
       }
+
+      if (!data.date || !data.time || !data.venue || !data.priority || !data.title) {
+        toast({
+          title: "Error",
+          description: "Please fill in all required fields",
+          variant: "destructive"
+        });
+        return;
+      }
   
       // Create the event object
       const eventData = {
-        ...data,
+        date: data.date,
+        time: data.time,
+        venue: data.venue,
+        priority: data.priority,
+        title: data.title,
+        description: data.description || '', // Provide default empty string if undefined
+        invitees: data.invitees || [], // Provide default empty array if undefined
         createdAt: new Date().toISOString(),
         createdBy: user.uid,
         status: 'upcoming'

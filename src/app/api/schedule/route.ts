@@ -114,7 +114,7 @@ export async function POST(request: Request) {
         id: Date.now().toString(),
         title: body.title,
         description: body.description,
-        dueDate: body.dueDate,
+        dueDate: new Date(body.dueDate).toISOString,
         priority: body.priority || 'medium',
         status: 'upcoming',
         type: body.type,

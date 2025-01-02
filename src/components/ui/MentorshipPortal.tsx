@@ -888,8 +888,23 @@ const ScheduleView = () => {
       </div>
     );
   }
+const renderTaskCard = (task: any) => {
 
-  const renderTaskCard = (task: any) => (
+  const getCombinedDateTime = (date: Date, timeString: string) => {
+    if (!date || !timeString) return new Date();
+    
+    const [hours, minutes] = timeString.split(':');
+    const combinedDate = new Date(date);
+    combinedDate.setHours(parseInt(hours, 10));
+    combinedDate.setMinutes(parseInt(minutes, 10));
+    return combinedDate;
+  };
+
+  const taskDateTime = getCombinedDateTime(new Date(task.date), task.time);
+
+
+   return (
+    
     <Card key={task.id} className="relative bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
       <Card className="p-4">
         <div className="grid grid-cols-12 gap-6">
@@ -901,13 +916,13 @@ const ScheduleView = () => {
                   <CardContent className="p-2">
                     <div className="flex flex-col items-center justify-center">
                       <div className="text-3xl font-bold">
-                        {new Date(task.dueDate).getDate()}
+                        {taskDateTime.getDate()}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short' })}
+                        {taskDateTime.toLocaleDateString('en-US', { month: 'short' })}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {new Date(task.dueDate).getFullYear()}
+                        {taskDateTime.getFullYear()}
                       </div>
                     </div>
                   </CardContent>
@@ -924,10 +939,7 @@ const ScheduleView = () => {
                   <CardContent className="p-2">
                     <div className="flex items-center text-sm">
                       <Clock className="mr-2 h-4 w-4 text-gray-400" />
-                      {new Date(task.dueDate).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: 'numeric'
-                      })}
+                      {task.time}
                     </div>
                   </CardContent>
                 </Card>
@@ -1115,7 +1127,7 @@ const ScheduleView = () => {
         </CardFooter>
       </Card>
     </Card>
-  );
+  );};
 
   return (
     <div className="space-y-6 pt-10">

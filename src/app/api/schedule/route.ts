@@ -57,6 +57,7 @@ export async function GET(request: Request) {
       }
       
       const tasks = scheduleData.tasks;
+      console.log("tasks[0] printed" , tasks[0])
       return NextResponse.json({ tasks });
 
     } catch (authError) {
@@ -109,12 +110,12 @@ export async function POST(request: Request) {
       // Get current tasks
       const scheduleDoc = await scheduleRef.get();
       const currentTasks = scheduleDoc.exists ? scheduleDoc.data()?.tasks || [] : [];
-      
+      //console.log()
       const newTask = {
         id: Date.now().toString(),
         title: body.title,
         description: body.description,
-        dueDate: new Date(body.dueDate).toISOString,
+        dueDate:  new Date(body.dueDate),
         priority: body.priority || 'medium',
         status: 'upcoming',
         type: body.type,

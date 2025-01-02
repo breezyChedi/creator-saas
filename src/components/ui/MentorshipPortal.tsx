@@ -890,6 +890,8 @@ const ScheduleView = () => {
   }
 const renderTaskCard = (task: any) => {
 
+  console.log("render task date: ", task.date)
+
   const getCombinedDateTime = (date: Date, timeString: string) => {
     if (!date || !timeString) return new Date();
     

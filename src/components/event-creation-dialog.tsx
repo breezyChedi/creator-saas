@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils"
 import { Calendar } from "./ui/calendar"
 import { useToast } from '@/hooks/use-toast';
 
-const {toast} = useToast();
+
 
 type EventFormData = {
   date: Date
@@ -49,6 +49,8 @@ const users = [
 ]
 
 export function EventCreationDialog() {
+const {toast} = useToast();
+
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
   const { control, register, handleSubmit, formState: { errors }, watch } = useForm<EventFormData>()
@@ -106,7 +108,7 @@ export function EventCreationDialog() {
         variant: "destructive"
       });
     }
-
+  };
   const nextStep = () => setStep(step + 1)
   const prevStep = () => setStep(step - 1)
 
@@ -301,6 +303,6 @@ export function EventCreationDialog() {
     </Dialog>
   )
 }
-}
+
 
 // export default EventCreationDialog();

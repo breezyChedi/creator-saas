@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../../firebase/firebaseConfig';
+import { auth, db } from '../../firebase/firebaseConfig';
+import {doc, setDoc} from 'firebase/firestore'
 import { useRouter } from 'next/navigation';
 
 function BrandSection() {
@@ -60,9 +61,24 @@ function AuthSection() {
       });
 
       const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
        // Get the ID token
-      const idToken = await result.user.getIdToken()
+      
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const userDocRef = doc(db, 'User_Data', user.uid, 'profile', 'info')
+
+      await setDoc(userDocRef, {
+        email: user.email,
+        fullname: user.displayName || '',
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+        
+    const idToken = await result.user.getIdToken()
+      
     
       // Send to your backend to set the cookie
       const response = await fetch('/api/auth/session', {

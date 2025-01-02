@@ -1,8 +1,9 @@
 
 import { NextResponse } from 'next/server';
-import adminAuth  from '@/firebase/firebaseConfig';
+import {adminAuth}  from '@/firebase/admin-config';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { getFirestore} from 'firebase-admin/firestore'
+
 import { cookies } from 'next/headers';
 // Types
 interface Task {
@@ -75,9 +76,15 @@ export async function POST(request: Request) {
     }
 
     try {
+      // Use adminAuth instead of auth
       const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
       const userId = decodedClaims.uid;
 
+      // Use adminAuth for getting user
+      const userRecord = await adminAuth.getUser(userId);
+      const googleEmail = userRecord.email;
+
+      // Get request body
       const body = await request.json();
 
       if (!body.title || !body.dueDate || !body.type) {

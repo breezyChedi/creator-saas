@@ -1280,7 +1280,7 @@ const renderTaskCard = (task: any) => {
                 <div>
                   <h3 className="text-red-500 font-semibold mb-4">Overdue</h3>
                   <div className="space-y-4">
-                    {groupedTasks.overdue.map(renderTaskCard)}
+                    {groupedTasks.overdue.map((task) => renderTaskCard(task))}
                   </div>
                 </div>
               )}
@@ -1302,7 +1302,7 @@ const renderTaskCard = (task: any) => {
                     </CardContent>
                   </Card>
                   <div className="space-y-4">
-                    {groupedTasks.today.map(renderTaskCard)}
+                    {groupedTasks.today.map((task) => renderTaskCard(task))}
                   </div>
                 </div>
               )}
@@ -1311,7 +1311,7 @@ const renderTaskCard = (task: any) => {
                 <div>
                   <h3 className="text-green-500 font-semibold mb-4">Tomorrow</h3>
                   <div className="space-y-4">
-                    {groupedTasks.tomorrow.map(renderTaskCard)}
+                    {groupedTasks.tomorrow.map((task) => renderTaskCard(task))}
                   </div>
                 </div>
               )}
@@ -1335,7 +1335,7 @@ const renderTaskCard = (task: any) => {
                     </CardContent>
                   </Card>
                   <div className="space-y-4">
-                    {groupedTasks.thisWeek.map(renderTaskCard)}
+                    {groupedTasks.thisWeek.map((task) => renderTaskCard(task))}
                   </div>
                 </div>
               )}
@@ -1344,7 +1344,7 @@ const renderTaskCard = (task: any) => {
                 <div>
                   <h3 className="text-gray-500 font-semibold mb-4">Later</h3>
                   <div className="space-y-4">
-                    {groupedTasks.later.map(renderTaskCard)}
+                    {groupedTasks.later.map((task) => renderTaskCard(task))}
                   </div>
                 </div>
               )}
@@ -1353,7 +1353,7 @@ const renderTaskCard = (task: any) => {
                 <div>
                   <h3 className="text-gray-400 font-semibold mb-4">Completed</h3>
                   <div className="space-y-4">
-                    {groupedTasks.completed.map(renderTaskCard)}
+                    {groupedTasks.completed.map((task) => renderTaskCard(task))}
                   </div>
                 </div>
               )}

@@ -955,7 +955,7 @@ const renderTaskCard = (task: any) => {
   const taskDate = new Date(task.date._seconds * 1000)
   //const taskDate = task.date.toDate ? task.date.toDate() : new Date(task.date);
   //const formattedDate = taskDate.toLocaleDateString();
-  console.log("created: ", taskDate)
+  console.log("created: ", task.createdAt)
   //console.log("formattedDate: ", formattedDate)
 
   const getCombinedDateTime = (date: Date, timeString: string) => {
@@ -1087,7 +1087,7 @@ const renderTaskCard = (task: any) => {
               <div className="text-sm text-gray-500 flex items-center">
                 <span>{task.type === 'meeting' ? 'Meeting' : 'Task'}</span>
                 <span className="mx-2">•</span>
-                <span>Created {taskDate.toLocaleDateString()}</span>
+                <span>Created {task.createdAt}</span>
               </div>
             </CardContent>
           </Card>

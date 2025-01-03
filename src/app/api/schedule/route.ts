@@ -80,17 +80,23 @@ export async function GET(request: Request) {
 // POST handler to schedule new session
 export async function POST(request: Request) {
   try {
+
+    console.log("API POST request received");
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session')?.value;
+
+    console.log("Session cookie present:", !!sessionCookie);
 
     if (!sessionCookie) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
+      console.log("Verifying session cookie");
       // Use adminAuth instead of auth
       const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
       const userId = decodedClaims.uid;
+      console.log("User ID from session:", userId);
 
       // Use adminAuth for getting user
       const userRecord = await adminAuth.getUser(userId);
@@ -98,6 +104,7 @@ export async function POST(request: Request) {
 
       // Get request body
       const body = await request.json();
+      console.log("Request body:", body);
 
       if (!body.title || !body.date || !body.type) {
         return NextResponse.json(
@@ -127,11 +134,13 @@ export async function POST(request: Request) {
         createdAt: new Date().toISOString(),
         createdBy: userId
       };
+      console.log("New task to be added:", newTask);
 
       // Update using admin SDK
       await scheduleRef.set({
         tasks: [...currentTasks, newTask]
       }, { merge: true });
+      console.log("Task successfully added to database");
 
       return NextResponse.json({ task: newTask });
 

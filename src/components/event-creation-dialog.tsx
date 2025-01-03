@@ -50,7 +50,7 @@ const users = [
 ]
 
 export function EventCreationDialog() {
-const {toast} = useToast();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
@@ -58,8 +58,10 @@ const {toast} = useToast();
 
   const onSubmit = async (data: EventFormData) => {
     try {
+      console.log("Form submission started with data:", data);
       const user = auth.currentUser;
       if (!user) {
+        console.log("No user found - authentication error");
         toast({
           title: "Error",
           description: "You must be logged in to create events",
@@ -76,7 +78,7 @@ const {toast} = useToast();
         });
         return;
       }
-  
+
       // Create the event object
       const eventData = {
         date: data.date,
@@ -87,11 +89,13 @@ const {toast} = useToast();
         title: data.title,
         description: data.description || '', // Provide default empty string if undefined
         invitees: data.invitees || [], // Provide default empty array if undefined
-       /* createdAt: new Date().toISOString(),
-        createdBy: user.uid,
-        status: 'upcoming'*/
+        /* createdAt: new Date().toISOString(),
+         createdBy: user.uid,
+         status: 'upcoming'*/
       };
-      
+
+      console.log("Sending event data to API:", eventData);
+
       const response = await fetch('/api/schedule', {
         method: 'POST',
         headers: {
@@ -119,20 +123,20 @@ const {toast} = useToast();
         });
       }
   */
-
+      console.log("API response status:", response.status);
       if (!response.ok) {
         console.log(response)
         throw new Error('Failed to create event');
-        
+
       }
-  
+
       const result = await response.json();
 
       toast({
         title: "Success",
         description: "Event created successfully",
       });
-  
+
       setOpen(false);
       setStep(1);
     } catch (error) {
@@ -316,6 +320,31 @@ const {toast} = useToast();
                     )}
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Controller
+                    name="type"
+                    control={control}
+                    defaultValue="task"
+                    render={({ field }) => (
+                      <div className="mb-4">
+                        <Label htmlFor="type">Event Type</Label>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select event type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="meeting">Meeting</SelectItem>
+                            <SelectItem value="task">Task</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  />
+
+
+
+                </div>
+
               </div>
             )}
           </div>

@@ -87,9 +87,9 @@ const {toast} = useToast();
         title: data.title,
         description: data.description || '', // Provide default empty string if undefined
         invitees: data.invitees || [], // Provide default empty array if undefined
-        createdAt: new Date().toISOString(),
+       /* createdAt: new Date().toISOString(),
         createdBy: user.uid,
-        status: 'upcoming'
+        status: 'upcoming'*/
       };
       
       const response = await fetch('/api/schedule', {
@@ -119,6 +119,15 @@ const {toast} = useToast();
         });
       }
   */
+
+      if (!response.ok) {
+        console.log(response)
+        throw new Error('Failed to create event');
+        
+      }
+  
+      const result = await response.json();
+
       toast({
         title: "Success",
         description: "Event created successfully",

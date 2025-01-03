@@ -950,7 +950,7 @@ const renderTaskCard = (task: any) => {
 
    return (
     
-    <Card key={task.id} className="relative bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
+    <Card key={`${task.date}-${task.time}`}  className="relative bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
       <Card className="p-4">
         <div className="grid grid-cols-12 gap-6">
           {/* Left Column - Due Date */}

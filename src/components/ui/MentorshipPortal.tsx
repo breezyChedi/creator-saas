@@ -836,6 +836,8 @@ console.log('Processed date:', taskDate);
         body: JSON.stringify(newTaskData)
       });
 
+      //fetchTasks();
+
       if (!response.ok) {
         throw new Error('Failed to add task');
       }
@@ -909,8 +911,9 @@ console.log('Processed date:', taskDate);
   };
 
   // Modify deleteTask function to use API
-  const deleteTask = async (task: any) => {
+  const deleteTask = async (task: Task) => {
     try {
+      console.log("deleteTask input", task)
 
       const taskKey = `${task.date}-${task.time}`;
 
@@ -1087,7 +1090,7 @@ const renderTaskCard = (task: any) => {
               <div className="text-sm text-gray-500 flex items-center">
                 <span>{task.type === 'meeting' ? 'Meeting' : 'Task'}</span>
                 <span className="mx-2">•</span>
-                <span>Created {task.createdAt}</span>
+                <span>Created {new Date(task.createdAt).toISOString().split('T')[0]}</span>
               </div>
             </CardContent>
           </Card>
@@ -1188,7 +1191,7 @@ const renderTaskCard = (task: any) => {
               variant="outline"
               size="sm"
               className="text-red-600 hover:text-red-900 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-950 inline-flex items-center"
-              onClick={() => deleteTask(task.id)}
+              onClick={() => deleteTask(task)}
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Delete

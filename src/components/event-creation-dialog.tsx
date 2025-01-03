@@ -26,6 +26,84 @@ import { cn } from "@/lib/utils"
 import { Calendar } from "./ui/calendar"
 import { useToast } from '@/hooks/use-toast';
 
+// Add these functions at the top level of the file
+async function createCalendarEvent(event: any, accessToken: string) {
+  try {
+
+    const formattedDate = event.date.toISOString().split('T')[0];
+    
+    // Create a new Date object by combining the formatted date and time
+    const startDateTime = new Date(`${formattedDate}T${event.time}`);
+    
+    // Create end time (1 hour after start time)
+    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
+
+    console.log("date + time", startDateTime)
+    const response = await fetch(
+      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          summary: event.title,
+          description: event.description,
+          start: {
+            dateTime: startDateTime.toISOString(),
+          },
+          end: {
+            dateTime:endDateTime.toISOString(), // Add 1 hour
+          },
+          location: event.venue,
+          attendees: event.invitees?.map((email: string) => ({ email })) || [],
+        }),
+      }
+    );
+    return response.json();
+  } catch (error) {
+    console.error('Error creating calendar event:', error);
+    throw error;
+  }
+}
+
+async function syncEventsToGoogleCalendar(userId: string, accessToken: string) {
+  try {
+    // Get all events from Firestore
+    const scheduleRef = doc(db, 'User_Data', userId, 'schedule', 'tasks');
+    const scheduleDoc = await getDoc(scheduleRef);
+    const tasks = scheduleDoc.exists() ? scheduleDoc.data()?.tasks || [] : [];
+
+    // Get existing calendar events
+    const calendarResponse = await fetch(
+      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const calendarData = await calendarResponse.json();
+    const existingEvents = calendarData.items || [];
+
+    // Sync each task that's not already in Google Calendar
+    for (const task of tasks) {
+      const eventExists = existingEvents.some(
+        (event: any) => 
+          event.summary === task.title && 
+          event.description === task.description
+      );
+
+      if (!eventExists) {
+        await createCalendarEvent(task, accessToken);
+      }
+    }
+  } catch (error) {
+    console.error('Error syncing events:', error);
+    throw error;
+  }
+}
 
 
 type EventFormData = {
@@ -69,6 +147,11 @@ export function EventCreationDialog() {
         });
         return;
       }
+
+      const userDocRef = doc(db, 'User_Data', user.uid, 'profile', 'info');
+      const userDoc = await getDoc(userDocRef);
+      console.log(userDoc)
+      const accessToken = userDoc.data()?.accessToken;
 
       if (!data.date || !data.time || !data.venue || !data.priority || !data.title) {
         toast({
@@ -128,6 +211,10 @@ export function EventCreationDialog() {
         console.log(response)
         throw new Error('Failed to create event');
 
+      }
+      console.log("Access token: ", accessToken)
+      if (accessToken) {
+        await createCalendarEvent(data, accessToken);
       }
 
       const result = await response.json();

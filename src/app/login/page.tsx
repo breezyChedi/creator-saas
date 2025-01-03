@@ -52,6 +52,7 @@ function AuthSection() {
 
       provider.addScope('https://www.googleapis.com/auth/gmail.readonly');
       provider.addScope('https://www.googleapis.com/auth/calendar');
+      provider.addScope('https://www.googleapis.com/auth/calendar.events');
       provider.addScope('https://www.googleapis.com/auth/drive.readonly');
   
       // Optional: Request offline access (to get refresh token)
@@ -64,6 +65,8 @@ function AuthSection() {
       const user = result.user;
 
        // Get the ID token
+       const credential = GoogleAuthProvider.credentialFromResult(result);
+       const accessToken = credential?.accessToken;
       
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -74,7 +77,8 @@ function AuthSection() {
         email: user.email,
         fullname: user.displayName || '',
         createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        accessToken
       }, { merge: true });
         
     const idToken = await result.user.getIdToken()

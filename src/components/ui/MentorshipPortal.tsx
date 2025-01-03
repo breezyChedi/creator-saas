@@ -139,6 +139,20 @@ import { EventCreationDialog } from '../event-creation-dialog'
 import { ViewCollectionsDialog } from '../view-collections-dialog';
 import { ResourceCreationDialog } from '../resource-creation-dialog';
 
+interface Task {
+  title: string;
+  description: string;
+  date: Date;
+  time: string;
+  venue: string;
+  priority: 'low' | 'medium' | 'high';
+  status: 'upcoming' | 'completed';
+  type: 'meeting' | 'task';
+  invitees: string[];
+  createdAt: string;
+  createdBy: string;
+}
+
 const DashboardView = () => {
   const [selectedChat, setSelectedChat] = useState({
     name: "John Doe",
@@ -675,14 +689,18 @@ const ScheduleView = () => {
   const [filterType, setFilterType] = useState<'all' | 'meeting' | 'task'>('all');
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all');
 
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<Task>({
     title: '',
     description: '',
-    date: '',
+    date: new Date(),
+    time: '',
+    venue: '',
     priority: 'medium',
+    status: 'upcoming',
     type: 'task',
-    attendees: [] as string[],
-    location: ''
+    invitees: [],
+    createdAt: new Date().toISOString(),
+    createdBy: auth.currentUser?.uid || '',
   });
 
   const filteredTasks = useMemo(() => {
@@ -828,11 +846,15 @@ console.log('Processed date:', taskDate);
       setNewTask({
         title: '',
         description: '',
-        date: '',
+        date: new Date(),
+        time: '',
         priority: 'medium',
+        status: 'upcoming',
         type: 'task',
-        attendees: [],
-        location: ''
+        invitees: [],
+        venue: '',
+        createdAt: new Date().toISOString(),
+        createdBy: auth.currentUser?.uid || ''
       });
 
       toast({
@@ -932,9 +954,9 @@ const renderTaskCard = (task: any) => {
   console.log("render task date: ", task.date)
   const taskDate = new Date(task.date._seconds * 1000)
   //const taskDate = task.date.toDate ? task.date.toDate() : new Date(task.date);
-  const formattedDate = taskDate.toLocaleDateString();
-  console.log("taskDate: ", taskDate)
-  console.log("formattedDate: ", formattedDate)
+  //const formattedDate = taskDate.toLocaleDateString();
+  console.log("created: ", taskDate)
+  //console.log("formattedDate: ", formattedDate)
 
   const getCombinedDateTime = (date: Date, timeString: string) => {
     if (!date || !timeString) return new Date();
@@ -1389,8 +1411,8 @@ const renderTaskCard = (task: any) => {
               <Label>Due Date</Label>
               <Input
                 type="datetime-local"
-                value={newTask.date}
-                onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
+                value={newTask.date instanceof Date ? newTask.date.toISOString().slice(0, 16) : ''}
+                onChange={(e) => setNewTask({ ...newTask, date: new Date(e.target.value) })}
               />
             </div>
             <div className="space-y-2">
@@ -1429,17 +1451,17 @@ const renderTaskCard = (task: any) => {
                 <div className="space-y-2">
                   <Label>Location</Label>
                   <Input
-                    value={newTask.location}
-                    onChange={(e) => setNewTask({ ...newTask, location: e.target.value })}
+                    value={newTask.venue}
+                    onChange={(e) => setNewTask({ ...newTask, venue: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Attendees (comma-separated emails)</Label>
                   <Input
-                    value={newTask.attendees.join(', ')}
+                    value={newTask.invitees.join(', ')}
                     onChange={(e) => setNewTask({
                       ...newTask,
-                      attendees: e.target.value.split(',').map(email => email.trim())
+                      invitees: e.target.value.split(',').map(email => email.trim())
                     })}
                   />
                 </div>

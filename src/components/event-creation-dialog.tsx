@@ -29,13 +29,14 @@ import { useToast } from '@/hooks/use-toast';
 
 
 type EventFormData = {
-  date: Date
-  time: string
-  venue: string
-  priority: string
-  title: string
-  description: string
-  invitees: string[]
+  title: string;
+  description: string;
+  date: Date;
+  time: string;
+  venue: string;
+  priority: 'low' | 'medium' | 'high';
+  type: 'meeting' | 'task';
+  invitees: string[];
 }
 
 const priorities = ["Low", "Medium", "High"]
@@ -82,6 +83,7 @@ const {toast} = useToast();
         time: data.time,
         venue: data.venue,
         priority: data.priority,
+        type: data.type,
         title: data.title,
         description: data.description || '', // Provide default empty string if undefined
         invitees: data.invitees || [], // Provide default empty array if undefined
@@ -89,7 +91,16 @@ const {toast} = useToast();
         createdBy: user.uid,
         status: 'upcoming'
       };
-  
+      
+      const response = await fetch('/api/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      /*
       // Reference to user's schedule document
       const scheduleRef = doc(db, 'User_Data', user.uid, 'schedule', 'tasks');
   
@@ -107,7 +118,7 @@ const {toast} = useToast();
           tasks: arrayUnion(eventData)
         });
       }
-  
+  */
       toast({
         title: "Success",
         description: "Event created successfully",

@@ -7,15 +7,18 @@ import { getFirestore} from 'firebase-admin/firestore'
 import { cookies } from 'next/headers';
 // Types
 interface Task {
-  id: string;
+  
   title: string;
   description: string;
-  date: string;
+  date: Date;
+  time: string
   priority: 'low' | 'medium' | 'high';
   status: 'current' | 'upcoming' | 'completed';
   type: 'meeting' | 'task';
-  attendees?: string[];
-  location?: string;
+  invitees: string[];
+  venue: string;
+  createdAt: string;
+  createdBy: string;
 }
 
 // GET handler to fetch scheduled sessions
@@ -111,16 +114,18 @@ export async function POST(request: Request) {
       const scheduleDoc = await scheduleRef.get();
       const currentTasks = scheduleDoc.exists ? scheduleDoc.data()?.tasks || [] : [];
       //console.log()
-      const newTask = {
-        id: Date.now().toString(),
+      const newTask: Task = {
         title: body.title,
-        description: body.description,
-        date:  new Date(body.date),
+        description: body.description || '',
+        date: new Date(body.date),
+        time: body.time,
+        venue: body.venue || '',
         priority: body.priority || 'medium',
         status: 'upcoming',
         type: body.type,
-        attendees: body.attendees || [],
-        location: body.location || ''
+        invitees: body.invitees || [],
+        createdAt: new Date().toISOString(),
+        createdBy: userId
       };
 
       // Update using admin SDK

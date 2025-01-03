@@ -8,7 +8,7 @@ type Task = {
   id: number;
   title: string;
   description: string;
-  dueDate: string;
+  date: string;
   priority: string;
 };
 
@@ -41,14 +41,14 @@ const mockTasks: Task[] = [
     id: 1,
     title: "Review System Design Concepts",
     description: "Go through distributed systems materials",
-    dueDate: "2024-02-01",
+    date: "2024-02-01",
     priority: "High"
   },
   {
     id: 2, 
     title: "Complete Portfolio Website",
     description: "Finish implementing remaining features",
-    dueDate: "2024-02-15",
+    date: "2024-02-15",
     priority: "Medium"
   }
 ];

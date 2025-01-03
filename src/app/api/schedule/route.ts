@@ -10,7 +10,7 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  dueDate: string;
+  date: string;
   priority: 'low' | 'medium' | 'high';
   status: 'current' | 'upcoming' | 'completed';
   type: 'meeting' | 'task';
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
       // Get request body
       const body = await request.json();
 
-      if (!body.title || !body.dueDate || !body.type) {
+      if (!body.title || !body.date || !body.type) {
         return NextResponse.json(
           { error: 'Missing required fields' },
           { status: 400 }
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
         id: Date.now().toString(),
         title: body.title,
         description: body.description,
-        dueDate:  new Date(body.dueDate),
+        date:  new Date(body.date),
         priority: body.priority || 'medium',
         status: 'upcoming',
         type: body.type,
@@ -219,15 +219,13 @@ export async function DELETE(request: Request) {
       const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
       const userId = decodedClaims.uid;
 
-      const url = new URL(request.url);
-      const taskId = url.searchParams.get('taskId');
-
-      if (!taskId) {
-        return NextResponse.json(
-          { error: 'Missing taskId' },
-          { status: 400 }
-        );
+      const { searchParams } = new URL(request.url);
+      const taskKey = searchParams.get('taskKey');
+  
+      if (!taskKey) {
+        return NextResponse.json({ error: 'Task key is required' }, { status: 400 });
       }
+
 
       // Initialize Admin Firestore
       const db = getFirestore();
@@ -238,8 +236,10 @@ export async function DELETE(request: Request) {
       const tasks = scheduleDoc.exists ? scheduleDoc.data()?.tasks || [] : [];
       
       // Remove task
-      const updatedTasks = tasks.filter((task: Task) => task.id !== taskId);
-      
+      const updatedTasks = tasks.filter((task: any) => {
+        const currentTaskKey = `${task.date}-${task.time}`;
+        return currentTaskKey !== taskKey;
+      });
       // Update using admin SDK
       await scheduleRef.set({ tasks: updatedTasks }, { merge: true });
 

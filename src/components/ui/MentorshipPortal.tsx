@@ -622,7 +622,7 @@ const ScheduleView = () => {
       id: '1',
       title: 'Weekly Team Standup',
       description: 'Regular team sync meeting to discuss progress and blockers',
-      dueDate: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour from now
+      date: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour from now
       priority: 'medium',
       status: 'current',
       type: 'meeting',
@@ -633,7 +633,7 @@ const ScheduleView = () => {
       id: '2',
       title: 'Project Deadline',
       description: 'Complete and submit the Q1 project deliverables',
-      dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days from now
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days from now
       priority: 'high',
       status: 'upcoming',
       type: 'task'
@@ -642,7 +642,7 @@ const ScheduleView = () => {
       id: '3',
       title: 'Client Presentation',
       description: 'Present new features to key stakeholders',
-      dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days from now
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days from now
       priority: 'high',
       status: 'upcoming',
       type: 'meeting',
@@ -678,7 +678,7 @@ const ScheduleView = () => {
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
-    dueDate: '',
+    date: '',
     priority: 'medium',
     type: 'task',
     attendees: [] as string[],
@@ -697,7 +697,7 @@ const ScheduleView = () => {
         const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
         return matchesSearch && matchesType && matchesPriority;
       })
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [tasks, searchQuery, filterType, filterPriority]);
 
   const fetchTasks = async () => {
@@ -806,7 +806,7 @@ console.log('Processed date:', taskDate);
       const newTaskData = {
         ...newTask,
         status: 'upcoming',
-        dueDate: new Date(newTask.dueDate).toISOString()
+        date: new Date(newTask.date).toISOString()
       };
 
       const response = await fetch('/api/schedule', {
@@ -828,7 +828,7 @@ console.log('Processed date:', taskDate);
       setNewTask({
         title: '',
         description: '',
-        dueDate: '',
+        date: '',
         priority: 'medium',
         type: 'task',
         attendees: [],
@@ -887,10 +887,13 @@ console.log('Processed date:', taskDate);
   };
 
   // Modify deleteTask function to use API
-  const deleteTask = async (taskId: string) => {
+  const deleteTask = async (task: any) => {
     try {
+
+      const taskKey = `${task.date}-${task.time}`;
+
       const token = await auth.currentUser?.getIdToken();
-      const response = await fetch(`/api/schedule?taskId=${taskId}`, {
+      const response = await fetch(`/api/schedule?taskKey=${taskKey}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -901,7 +904,7 @@ console.log('Processed date:', taskDate);
         throw new Error('Failed to delete task');
       }
 
-      setTasks(tasks.filter(task => task.id !== taskId));
+      setTasks(tasks.filter(task => `${task.date}-${task.time}` !== taskKey));
       toast({
         title: "Success",
         description: "Task deleted successfully"
@@ -1386,8 +1389,8 @@ const renderTaskCard = (task: any) => {
               <Label>Due Date</Label>
               <Input
                 type="datetime-local"
-                value={newTask.dueDate}
-                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                value={newTask.date}
+                onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
               />
             </div>
             <div className="space-y-2">

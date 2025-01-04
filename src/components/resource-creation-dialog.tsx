@@ -20,7 +20,7 @@ import {auth, db} from "@/firebase/firebaseConfig"
 import {collection, addDoc} from "firebase/firestore"
 import { useToast } from '@/hooks/use-toast';
 
-const {toast} = useToast();
+//const {toast} = useToast();
 const steps = [
   { title: "Basic Information", description: "Enter resource title, description, and creator" },
   { title: "Resource Type and Details", description: "Select resource type and add specific details" },

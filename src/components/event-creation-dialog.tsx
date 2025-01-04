@@ -29,16 +29,18 @@ import { useToast } from '@/hooks/use-toast';
 // Add these functions at the top level of the file
 async function createCalendarEvent(event: any, accessToken: string) {
   try {
-
-    const formattedDate = event.date.toISOString().split('T')[0];
-    
+    console.log("e.date: ", event.date)
+    //const formattedDate = event.date.toISOString().split('T')[0];
+    const formattedDate = event.date.toLocaleDateString('en-CA');
+    console.log("formated: ", formattedDate)
     // Create a new Date object by combining the formatted date and time
     const startDateTime = new Date(`${formattedDate}T${event.time}`);
     
     // Create end time (1 hour after start time)
     const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
 
-    console.log("date + time", startDateTime)
+    console.log("start: ", startDateTime)
+    console.log("end dt: ", endDateTime)
     const response = await fetch(
       'https://www.googleapis.com/calendar/v3/calendars/primary/events',
       {
@@ -61,6 +63,12 @@ async function createCalendarEvent(event: any, accessToken: string) {
         }),
       }
     );
+    console.log("response:", response)
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Calendar API Error:', errorData);
+      throw new Error(`Calendar API error: ${response.status} ${errorData}`);
+    }
     return response.json();
   } catch (error) {
     console.error('Error creating calendar event:', error);
@@ -104,6 +112,7 @@ async function syncEventsToGoogleCalendar(userId: string, accessToken: string) {
     throw error;
   }
 }
+
 
 
 type EventFormData = {
@@ -214,7 +223,17 @@ export function EventCreationDialog() {
       }
       console.log("Access token: ", accessToken)
       if (accessToken) {
-        await createCalendarEvent(data, accessToken);
+        try {
+          const calendarResult = await createCalendarEvent(data, accessToken);
+          console.log("Calendar event created:", calendarResult);
+        } catch (error) {
+          console.error("Failed to create calendar event:", error);
+          toast({
+            title: "Warning",
+            description: "Event saved but failed to sync with Google Calendar",
+            variant: "destructive"
+          });
+        }
       }
 
       const result = await response.json();

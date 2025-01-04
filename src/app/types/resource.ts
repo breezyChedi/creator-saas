@@ -28,9 +28,15 @@ export type ResourceFormData = {
   modules: Module[];
   documentDetails?: DocumentDetails;
   videoDetails?: VideoDetails;
+  platform?: string;
   audioDetails?: AudioDetails;
   benefits: string[];
   price: number;
   contactEmail: string;
+  attachments?: {
+    name: string;
+    type: string;
+    size?: number;
+  }[];
 };
 

@@ -41,6 +41,7 @@ export function ResourceCreationDialog() {
 
   const onSubmit = async (data: ResourceFormData) => {
     try {
+      console.log("Form validation passed");
       const user = auth.currentUser;
       if (!user) {
         toast({
@@ -64,7 +65,7 @@ export function ResourceCreationDialog() {
       // Add the document to Firestore
       const resourcesRef = collection(db, "resources");
       await addDoc(resourcesRef, newResource);
-
+      console.log("niks")
       toast({
         title: "Success",
         description: "Resource created successfully",
@@ -93,7 +94,12 @@ export function ResourceCreationDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <form onSubmit={(e) => {
+    console.log("Form submit event triggered");
+    console.log("Current form values:", methods.getValues());
+    console.log("Validation errors:", methods.formState.errors);
+    return methods.handleSubmit(onSubmit)(e);
+  }}>
             <DialogHeader>
               <DialogTitle>{steps[step - 1].title}</DialogTitle>
               <DialogDescription>

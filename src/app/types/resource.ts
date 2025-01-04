@@ -1,4 +1,4 @@
-export type ResourceType = "'document'" | "'course'" | "'video'" | "'audio'";
+export type ResourceType = "document" | "course" | "video" | "audio";
 
 export type Module = {
   title: string;

@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button"
 import { UploadArea } from "@/components/upload-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ResourceFormData, ResourceType } from "@/app/types/resource"
-import { PlusCircle, Trash2 } from 'lucide-react'
+import { PlusCircle, Trash2, Upload } from 'lucide-react'
+import { useState, useCallback} from 'react'
+import { useDropzone } from 'react-dropzone'
 
 const resourceTypes: ResourceType[] = ["document", "course", "video", "audio"]
 const documentFormats = ["PDF", "DOCX", "TXT", "EPUB"]
 const videoResolutions = ["720p", "1080p", "1440p", "4K"]
 const audioFormats = ["MP3", "WAV", "AAC", "FLAC"]
+
 
 export function Step2Form() {
   const { register, watch, control, setValue, formState: { errors } } = useFormContext<ResourceFormData>()
@@ -20,6 +23,98 @@ export function Step2Form() {
   })
 
   const resourceType = watch("type")
+  const [file, setFile] = useState<File | null>(null)
+
+  const getAcceptedFiles = () => {
+    switch (resourceType) {
+      case "video":
+        return {
+          'video/*': ['.mp4', '.mov', '.avi']
+        }
+      case "audio":
+        return {
+          'audio/*': ['.mp3', '.wav', '.aac', '.flac']
+        }
+      case "document":
+        return {
+          'application/pdf': ['.pdf'],
+          'application/msword': ['.doc', '.docx'],
+          'text/plain': ['.txt'],
+          'application/epub+zip': ['.epub']
+        }
+      default:
+        return undefined
+    }
+  }
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      const uploadedFile = acceptedFiles[0]
+      setFile(uploadedFile)
+
+      if (resourceType === "video") {
+        // Create video element to get metadata
+        const video = document.createElement('video')
+        video.preload = 'metadata'
+        video.src = URL.createObjectURL(uploadedFile)
+        
+        video.onloadedmetadata = () => {
+          // Set duration in minutes
+          setValue('videoDetails.duration', Math.ceil(video.duration / 60))
+          
+          // Determine resolution
+          const resolution = video.videoHeight >= 2160 ? "4K" :
+                           video.videoHeight >= 1440 ? "1440p" :
+                           video.videoHeight >= 1080 ? "1080p" : "720p"
+          setValue('videoDetails.resolution', resolution)
+          URL.revokeObjectURL(video.src)
+        }
+      } 
+      else if (resourceType === "audio") {
+        // Create audio element to get metadata
+        const audio = document.createElement('audio')
+        audio.preload = 'metadata'
+        audio.src = URL.createObjectURL(uploadedFile)
+        
+        audio.onloadedmetadata = () => {
+          // Set duration in minutes
+          setValue('audioDetails.duration', Math.ceil(audio.duration / 60))
+          // Set file format
+          const format = uploadedFile.name.split('.').pop()?.toUpperCase() || ''
+          setValue('audioDetails.fileFormat', format)
+          URL.revokeObjectURL(audio.src)
+        }
+      }
+      else if (resourceType === "document") {
+        // Set document format based on file extension
+        const format = uploadedFile.name.split('.').pop()?.toUpperCase() || ''
+        setValue('documentDetails.fileFormat', format)
+      }
+    }
+  }, [resourceType, setValue])
+
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop,
+    accept: getAcceptedFiles(),
+    maxFiles: 1,
+    multiple: false
+  })
+
+  const renderFileUpload = () => (
+    <div {...getRootProps()} className="border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center text-center cursor-pointer">
+      <input {...getInputProps()} />
+      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+      {isDragActive ? (
+        <p>Drop the file here ...</p>
+      ) : (
+        <p>Drag and drop a file here, or click to select</p>
+      )}
+      {file && (
+        <p className="mt-2 text-sm text-gray-500">Selected file: {file.name}</p>
+      )}
+    </div>
+  )
 
   const handleFileUpload = (file: File) => {
     const fileType = file.type
@@ -59,7 +154,7 @@ export function Step2Form() {
           <div className="space-y-2">
             <Label htmlFor="type">Resource Type</Label>
             <Select
-              onValueChange={(value) => setValue("type", value as ResourceType)}
+              onValueChange={(value) => {setValue("type", value as ResourceType); setFile(null)}}
               value={watch("type")}
             >
               <SelectTrigger>
@@ -76,38 +171,13 @@ export function Step2Form() {
             {errors.type && <p className="text-sm text-red-500">{errors.type.message}</p>}
           </div>
 
-          {resourceType === "document" && (
-            <div className="space-y-4">
-              <UploadArea onFileUpload={handleFileUpload}/>
-              <div className="space-y-2">
-                <Label htmlFor="documentDetails.fileFormat">File Format</Label>
-                <Controller
-                  name="documentDetails.fileFormat"
-                  control={control}
-                  rules={{ required: "File format is required" }}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select file format" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {documentFormats.map((format) => (
-                          <SelectItem key={format} value={format}>
-                            {format}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.documentDetails?.fileFormat &&
-                  <p className="text-sm text-red-500">{errors.documentDetails.fileFormat.message}</p>
-                }
-              </div>
-            </div>
-          )}
-
-          {resourceType === "course" && (
+          {(resourceType === "document" || resourceType === "video" || resourceType === "audio") && (
+        <div className="space-y-4">
+          {renderFileUpload()}
+        </div>
+      )}
+          
+ {resourceType === "course" && (
             <div className="space-y-4">
               <Label>Course Modules</Label>
               {modules.map((module, moduleIndex) => (
@@ -154,6 +224,44 @@ export function Step2Form() {
               </Button>
             </div>
           )}
+
+        </div>
+      )
+    }
+
+/*
+{resourceType === "document" && (
+            <div className="space-y-4">
+              <UploadArea onFileUpload={handleFileUpload}/>
+              <div className="space-y-2">
+                <Label htmlFor="documentDetails.fileFormat">File Format</Label>
+                <Controller
+                  name="documentDetails.fileFormat"
+                  control={control}
+                  rules={{ required: "File format is required" }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select file format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentFormats.map((format) => (
+                          <SelectItem key={format} value={format}>
+                            {format}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.documentDetails?.fileFormat &&
+                  <p className="text-sm text-red-500">{errors.documentDetails.fileFormat.message}</p>
+                }
+              </div>
+            </div>
+          )}
+
+         
 
           {resourceType === "video" && (
             <div className="space-y-4">
@@ -244,7 +352,4 @@ export function Step2Form() {
               </div>
             </div>
           )}
-        </div>
-      )
-    }
-
+*/

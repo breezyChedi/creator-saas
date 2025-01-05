@@ -33,6 +33,7 @@ export type ResourceFormData = {
   benefits: string[];
   price: number;
   contactEmail: string;
+  fileUrl?: string
   attachments?: {
     name: string;
     type: string;

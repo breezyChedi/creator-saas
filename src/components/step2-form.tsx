@@ -1,4 +1,4 @@
-import { useFormContext, useFieldArray } from "react-hook-form"
+import { useFormContext, useFieldArray, Controller } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ const videoResolutions = ["720p", "1080p", "1440p", "4K"]
 const audioFormats = ["MP3", "WAV", "AAC", "FLAC"]
 
 export function Step2Form() {
-  const { register, watch, control, formState: { errors } } = useFormContext<ResourceFormData>()
+  const { register, watch, control,setValue, formState: { errors } } = useFormContext<ResourceFormData>()
   const { fields: modules, append: appendModule, remove: removeModule } = useFieldArray({
     control,
     name: "modules",
@@ -24,7 +24,10 @@ export function Step2Form() {
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="type">Resource Type</Label>
-        <Select {...register("type", { required: "Resource type is required" })}>
+        <Select 
+  onValueChange={(value) => setValue("type", value as ResourceType)} 
+  value={watch("type")}
+>
           <SelectTrigger>
             <SelectValue placeholder="Select resource type" />
           </SelectTrigger>
@@ -40,37 +43,34 @@ export function Step2Form() {
       </div>
 
       {resourceType === "document" && (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="documentDetails.fileFormat">File Format</Label>
-            <Select {...register("documentDetails.fileFormat", { required: "File format is required" })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select file format" />
-              </SelectTrigger>
-              <SelectContent>
-                {documentFormats.map((format) => (
-                  <SelectItem key={format} value={format}>
-                    {format}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.documentDetails?.fileFormat && <p className="text-sm text-red-500">{errors.documentDetails.fileFormat.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="documentDetails.pageCount">Page Count</Label>
-            <Input
-              type="number"
-              id="documentDetails.pageCount"
-              {...register("documentDetails.pageCount", { 
-                required: "Page count is required",
-                min: { value: 1, message: "Page count must be at least 1" }
-              })}
-            />
-            {errors.documentDetails?.pageCount && <p className="text-sm text-red-500">{errors.documentDetails.pageCount.message}</p>}
-          </div>
-        </div>
-      )}
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <Label htmlFor="documentDetails.fileFormat">File Format</Label>
+      <Controller
+        name="documentDetails.fileFormat"
+        control={control}
+        rules={{ required: "File format is required" }}
+        render={({ field }) => (
+          <Select onValueChange={field.onChange} value={field.value}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select file format" />
+            </SelectTrigger>
+            <SelectContent>
+              {documentFormats.map((format) => (
+                <SelectItem key={format} value={format}>
+                  {format}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.documentDetails?.fileFormat && 
+        <p className="text-sm text-red-500">{errors.documentDetails.fileFormat.message}</p>
+      }
+    </div>
+  </div>
+)}
 
       {resourceType === "course" && (
         <div className="space-y-4">
@@ -120,71 +120,93 @@ export function Step2Form() {
         </div>
       )}
 
-      {resourceType === "video" && (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="videoDetails.duration">Duration (minutes)</Label>
-            <Input
-              type="number"
-              id="videoDetails.duration"
-              {...register("videoDetails.duration", { 
-                required: "Duration is required",
-                min: { value: 1, message: "Duration must be at least 1 minute" }
-              })}
-            />
-            {errors.videoDetails?.duration && <p className="text-sm text-red-500">{errors.videoDetails.duration.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="videoDetails.resolution">Resolution</Label>
-            <Select {...register("videoDetails.resolution", { required: "Resolution is required" })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select video resolution" />
-              </SelectTrigger>
-              <SelectContent>
-                {videoResolutions.map((resolution) => (
-                  <SelectItem key={resolution} value={resolution}>
-                    {resolution}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.videoDetails?.resolution && <p className="text-sm text-red-500">{errors.videoDetails.resolution.message}</p>}
-          </div>
-        </div>
-      )}
+{resourceType === "video" && (
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <Label htmlFor="videoDetails.duration">Duration (minutes)</Label>
+      <Input
+        type="number"
+        id="videoDetails.duration"
+        {...register("videoDetails.duration", { 
+          required: "Duration is required",
+          min: { value: 1, message: "Duration must be at least 1 minute" }
+        })}
+      />
+      {errors.videoDetails?.duration && 
+        <p className="text-sm text-red-500">{errors.videoDetails.duration.message}</p>
+      }
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor="videoDetails.resolution">Resolution</Label>
+      <Controller
+        name="videoDetails.resolution"
+        control={control}
+        rules={{ required: "Resolution is required" }}
+        render={({ field }) => (
+          <Select onValueChange={field.onChange} value={field.value}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select video resolution" />
+            </SelectTrigger>
+            <SelectContent>
+              {videoResolutions.map((resolution) => (
+                <SelectItem key={resolution} value={resolution}>
+                  {resolution}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.videoDetails?.resolution && 
+        <p className="text-sm text-red-500">{errors.videoDetails.resolution.message}</p>
+      }
+    </div>
+  </div>
+)}
 
-      {resourceType === "audio" && (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="audioDetails.duration">Duration (minutes)</Label>
-            <Input
-              type="number"
-              id="audioDetails.duration"
-              {...register("audioDetails.duration", { 
-                required: "Duration is required",
-                min: { value: 1, message: "Duration must be at least 1 minute" }
-              })}
-            />
-            {errors.audioDetails?.duration && <p className="text-sm text-red-500">{errors.audioDetails.duration.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="audioDetails.fileFormat">File Format</Label>
-            <Select {...register("audioDetails.fileFormat", { required: "File format is required" })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select audio format" />
-              </SelectTrigger>
-              <SelectContent>
-                {audioFormats.map((format) => (
-                  <SelectItem key={format} value={format}>
-                    {format}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.audioDetails?.fileFormat && <p className="text-sm text-red-500">{errors.audioDetails.fileFormat.message}</p>}
-          </div>
-        </div>
-      )}
+{resourceType === "audio" && (
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <Label htmlFor="audioDetails.duration">Duration (minutes)</Label>
+      <Input
+        type="number"
+        id="audioDetails.duration"
+        {...register("audioDetails.duration", { 
+          required: "Duration is required",
+          min: { value: 1, message: "Duration must be at least 1 minute" }
+        })}
+      />
+      {errors.audioDetails?.duration && 
+        <p className="text-sm text-red-500">{errors.audioDetails.duration.message}</p>
+      }
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor="audioDetails.fileFormat">File Format</Label>
+      <Controller
+        name="audioDetails.fileFormat"
+        control={control}
+        rules={{ required: "File format is required" }}
+        render={({ field }) => (
+          <Select onValueChange={field.onChange} value={field.value}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select audio format" />
+            </SelectTrigger>
+            <SelectContent>
+              {audioFormats.map((format) => (
+                <SelectItem key={format} value={format}>
+                  {format}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.audioDetails?.fileFormat && 
+        <p className="text-sm text-red-500">{errors.audioDetails.fileFormat.message}</p>
+      }
+    </div>
+  </div>
+)}
     </div>
   )
 }

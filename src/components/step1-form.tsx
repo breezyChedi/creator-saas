@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form"
+import { useFormContext, Controller } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -36,21 +36,28 @@ export function Step1Form() {
         {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="createdBy">Created By</Label>
-        <Select {...register("createdBy", { required: "Creator is required" })}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select creator" />
-          </SelectTrigger>
-          <SelectContent>
-            {users.map((user) => (
-              <SelectItem key={user.id} value={user.id}>
-                {user.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.createdBy && <p className="text-sm text-red-500">{errors.createdBy.message}</p>}
-      </div>
+  <Label htmlFor="createdBy">Created By</Label>
+  <Controller
+    name="createdBy"
+    control={control}
+    rules={{ required: "Creator is required" }}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select creator" />
+        </SelectTrigger>
+        <SelectContent>
+          {users.map((user) => (
+            <SelectItem key={user.id} value={user.id}>
+              {user.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )}
+  />
+  {errors.createdBy && <p className="text-sm text-red-500">{errors.createdBy.message}</p>}
+</div>
     </div>
   )
 }

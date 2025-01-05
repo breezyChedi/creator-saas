@@ -6,15 +6,34 @@ import { Upload } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export function UploadArea() {
+interface UploadAreaProps {
+onFileUpload: (file: File) => void
+
+}
+
+export function UploadArea({onFileUpload}: UploadAreaProps) {
   const [files, setFiles] = useState<File[]>([])
   const [category, setCategory] = useState("''")
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles)
-  }, [])
+    if (acceptedFiles[0]) {
+      onFileUpload(acceptedFiles[0]) // Call the onFileUpload prop with the first file
+    }
+  }, [onFileUpload])
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop,
+    maxFiles: 1, // Only allow one file
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc', '.docx'],
+      'text/plain': ['.txt'],
+      'application/epub+zip': ['.epub'],
+      'video/*': ['.mp4', '.mov', '.avi'],
+      'audio/*': ['.mp3', '.wav', '.aac', '.flac']
+    }
+  })
 
   const handleUpload = () => {
     // Here you would typically send the files to your server
@@ -45,6 +64,18 @@ export function UploadArea() {
           </ul>
         </div>
       )}
+      
+
+      <Button onClick={handleUpload} disabled={files.length === 0 || !category}>
+        Upload
+      </Button>
+    </div>
+  )
+ 
+
+}
+
+ /* 
       <Select onValueChange={setCategory}>
         <SelectTrigger>
           <SelectValue placeholder="Select a category" />
@@ -55,10 +86,4 @@ export function UploadArea() {
           <SelectItem value="collections">Collections</SelectItem>
         </SelectContent>
       </Select>
-      <Button onClick={handleUpload} disabled={files.length === 0 || !category}>
-        Upload
-      </Button>
-    </div>
-  )
-}
-
+ */

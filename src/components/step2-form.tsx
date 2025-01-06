@@ -8,6 +8,8 @@ import { ResourceFormData, ResourceType } from "@/app/types/resource"
 import { PlusCircle, Trash2, Upload } from 'lucide-react'
 import { useState, useCallback} from 'react'
 import { useDropzone } from 'react-dropzone'
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/firebase/firebaseConfig";
 
 const resourceTypes: ResourceType[] = ["document", "course", "video", "audio"]
 const documentFormats = ["PDF", "DOCX", "TXT", "EPUB"]
@@ -51,6 +53,17 @@ export function Step2Form() {
     if (acceptedFiles.length > 0) {
       const uploadedFile = acceptedFiles[0]
       setFile(uploadedFile)
+
+      const storageRef = ref(storage, `resources/${resourceType}/${uploadedFile.name}`);
+      
+      // Upload file to Firebase Storage
+      const snapshot = await uploadBytes(storageRef, uploadedFile);
+      
+      // Get download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      // Set the fileUrl in the form
+      setValue('fileUrl', downloadURL);
 
       if (resourceType === "video") {
         // Create video element to get metadata

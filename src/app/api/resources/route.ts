@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-
+import { db } from '@/firebase/firebaseConfig'
+import { collection, getDocs } from 'firebase/firestore'
 // Mock database for demo purposes
 
 
@@ -58,7 +59,27 @@ let resources = [
 ]
 
 export async function GET() {
-  return NextResponse.json(resources)
+  try {
+    // Get reference to the resources collection
+    const resourcesRef = collection(db, 'resources')
+    
+    // Fetch all documents from the collection
+    const querySnapshot = await getDocs(resourcesRef)
+    
+    // Convert the documents to an array of resources
+    const resources = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+
+    return NextResponse.json(resources)
+  } catch (error) {
+    console.error('Error fetching resources:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch resources' },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(request: NextRequest) {

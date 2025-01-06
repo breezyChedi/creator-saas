@@ -1,0 +1,92 @@
+
+// VideoView.tsx
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Video, Volume2, Settings, Maximize, Play, Pause } from "lucide-react";
+
+interface VideoContent {
+  id: string;
+  title: string;
+  url: string;
+  duration: string;
+  creator: string;
+  thumbnail: string;
+}
+
+export const VideoView = () => {
+  const [currentVideo, setCurrentVideo] = useState<VideoContent | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(100);
+
+  useEffect(() => {
+    // Fetch video data from API
+    const fetchVideo = async () => {
+      try {
+        const response = await fetch('/api/resources?type=video');
+        const data = await response.json();
+        setCurrentVideo(data);
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      }
+    };
+
+    fetchVideo();
+  }, []);
+
+  return (
+    <div className="h-screen pt-16 px-6">
+      <Card className="h-full">
+        <CardHeader className="py-4">
+          <CardTitle className="flex items-center gap-2">
+            <Video className="h-5 w-5" />
+            {currentVideo?.title || 'Video Player'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative aspect-video bg-black">
+            <video
+              src={currentVideo?.url}
+              className="w-full h-full"
+              controls
+            />
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPlaying(!isPlaying)}
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+            </Button>
+            <div className="flex items-center gap-2">
+              <Volume2 className="h-4 w-4" />
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={volume}
+                onChange={(e) => setVolume(Number(e.target.value))}
+                className="w-24"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm">
+                <Maximize className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

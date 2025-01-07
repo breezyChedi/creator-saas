@@ -6,28 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Share2, Bookmark } from "lucide-react";
+import { storage } from '@/firebase/firebaseConfig';
+import { getDownloadURL, ref } from 'firebase/storage';
 
-interface Document {
-  id: string;
+interface DocumentViewProps {
+  fileUrl: string;
   title: string;
-  content: string;
-  author: string;
-  dateCreated: string;
-  fileSize: string;
-  format: string;
 }
 
-export const DocumentView = () => {
-  const [currentDocument, setCurrentDocument] = useState<Document | null>(null);
+export const DocumentView = ({ fileUrl, title }: DocumentViewProps) => {
+  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch document data from API
     const fetchDocument = async () => {
       try {
-        const response = await fetch('/api/resources?type=document');
-        const data = await response.json();
-        setCurrentDocument(data);
+        setIsLoading(true);
+        // Get the download URL from Firebase Storage using the fileUrl
+        const storageRef = ref(storage, fileUrl);
+        const url = await getDownloadURL(storageRef);
+        setDocumentUrl(url);
       } catch (error) {
         console.error('Error fetching document:', error);
       } finally {
@@ -35,8 +33,20 @@ export const DocumentView = () => {
       }
     };
 
-    fetchDocument();
-  }, []);
+    if (fileUrl) {
+      fetchDocument();
+    }
+  }, [fileUrl]);
+
+  const handleDownload = async () => {
+    try {
+      const storageRef = ref(storage, fileUrl);
+      const url = await getDownloadURL(storageRef);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error downloading document:', error);
+    }
+  };
 
   return (
     <div className="h-screen pt-16 px-6">
@@ -44,10 +54,10 @@ export const DocumentView = () => {
         <CardHeader className="py-4">
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            {currentDocument?.title || 'Document Viewer'}
+            {title || 'Document Viewer'}
           </CardTitle>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
               Download
             </Button>
@@ -63,9 +73,21 @@ export const DocumentView = () => {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="p-4">
-              {currentDocument?.content}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-full">
+                Loading document...
+              </div>
+            ) : documentUrl ? (
+              <iframe
+                src={documentUrl}
+                className="w-full h-full"
+                title={title}
+              />
+            ) : (
+              <div className="p-4">
+                Failed to load document
+              </div>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>

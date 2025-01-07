@@ -23,9 +23,9 @@ export const DocumentView = ({ fileUrl, title }: DocumentViewProps) => {
       try {
         setIsLoading(true);
         // Get the download URL from Firebase Storage using the fileUrl
-        const storageRef = ref(storage, fileUrl);
-        const url = await getDownloadURL(storageRef);
-        setDocumentUrl(url);
+       // const storageRef = ref(storage, fileUrl);
+      //  const url = await getDownloadURL(storageRef);
+        setDocumentUrl(fileUrl);
       } catch (error) {
         console.error('Error fetching document:', error);
       } finally {
@@ -40,9 +40,9 @@ export const DocumentView = ({ fileUrl, title }: DocumentViewProps) => {
 
   const handleDownload = async () => {
     try {
-      const storageRef = ref(storage, fileUrl);
-      const url = await getDownloadURL(storageRef);
-      window.open(url, '_blank');
+     // const storageRef = ref(storage, fileUrl);
+     // const url = await getDownloadURL(storageRef);
+      window.open(fileUrl, '_blank');
     } catch (error) {
       console.error('Error downloading document:', error);
     }

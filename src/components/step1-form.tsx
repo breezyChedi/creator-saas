@@ -48,7 +48,7 @@ export function Step1Form() {
         </SelectTrigger>
         <SelectContent>
           {users.map((user) => (
-            <SelectItem key={user.id} value={user.id}>
+            <SelectItem key={user.id} value={user.name}>
               {user.name}
             </SelectItem>
           ))}

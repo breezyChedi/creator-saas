@@ -61,6 +61,7 @@ export function Step2Form() {
       
       // Get download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("file: ", downloadURL)
       
       // Set the fileUrl in the form
       setValue('fileUrl', downloadURL);

@@ -7,27 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, Volume2, Settings, Maximize, Play, Pause } from "lucide-react";
 
-interface VideoContent {
-  id: string;
+interface VideoContentProps {
   title: string;
   url: string;
-  duration: string;
-  creator: string;
-  thumbnail: string;
 }
 
-export const VideoView = () => {
-  const [currentVideo, setCurrentVideo] = useState<VideoContent | null>(null);
+export const VideoView = ({url, title}: VideoContentProps) => {
+  const [currentVideo, setCurrentVideo] = useState<string |null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(100);
+  const [vidTitle, setTitle] = useState("")
 
   useEffect(() => {
     // Fetch video data from API
     const fetchVideo = async () => {
       try {
-        const response = await fetch('/api/resources?type=video');
-        const data = await response.json();
-        setCurrentVideo(data);
+        console.log("url : ",url)
+        setCurrentVideo(url);
+        setTitle(title)
       } catch (error) {
         console.error('Error fetching video:', error);
       }
@@ -42,13 +39,13 @@ export const VideoView = () => {
         <CardHeader className="py-4">
           <CardTitle className="flex items-center gap-2">
             <Video className="h-5 w-5" />
-            {currentVideo?.title || 'Video Player'}
+            {vidTitle || 'Video Player'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="relative aspect-video bg-black">
             <video
-              src={currentVideo?.url}
+              src={currentVideo}
               className="w-full h-full"
               controls
             />

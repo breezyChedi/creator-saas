@@ -17,14 +17,16 @@ interface DocumentViewProps {
 export const DocumentView = ({ fileUrl, title }: DocumentViewProps) => {
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  console.log("Document URL set to no effect:", fileUrl);
   useEffect(() => {
     const fetchDocument = async () => {
       try {
+         console.log("Document URL set to:", fileUrl);
         setIsLoading(true);
         // Get the download URL from Firebase Storage using the fileUrl
        // const storageRef = ref(storage, fileUrl);
       //  const url = await getDownloadURL(storageRef);
+     
         setDocumentUrl(fileUrl);
       } catch (error) {
         console.error('Error fetching document:', error);
@@ -80,8 +82,9 @@ export const DocumentView = ({ fileUrl, title }: DocumentViewProps) => {
             ) : documentUrl ? (
               <iframe
                 src={documentUrl}
-                className="w-full h-full"
+                className="w-full h-full min-h-[800px]"
                 title={title}
+                style={{width: '100%', height: '100%', border: 'none', display: 'block'}}
               />
             ) : (
               <div className="p-4">

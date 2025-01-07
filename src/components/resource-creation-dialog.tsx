@@ -55,7 +55,7 @@ export function ResourceCreationDialog() {
       // Create the resource object
       const newResource = {
         ...data,
-        createdBy: user.uid,
+        //createdBy: user.uid,
         createdAt: new Date(),
         updatedAt: new Date(),
         status: "In Progress",

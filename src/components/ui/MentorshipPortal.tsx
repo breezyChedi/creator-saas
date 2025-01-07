@@ -1951,7 +1951,7 @@ export default function MentorshipPortal() {
                           <div className="flex-1">
                             <h4 className="font-medium text-lg mb-2">{resource.title}</h4>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                              <span>{resource.recommended}</span>
+                              <span>{resource.createdBy}</span>
                               <span>•</span>
                               <Badge variant="secondary">{resource.type}</Badge>
                             </div>
@@ -2022,6 +2022,8 @@ export default function MentorshipPortal() {
                                             break;
                                           case 'video':
                                             setCurrentView('video');
+                                            setTitle(resource.title)
+                                            setFileUrl(resource.fileUrl)
                                             break;
                                           case 'audio':
                                             setCurrentView('audio');
@@ -4367,7 +4369,7 @@ export default function MentorshipPortal() {
         {currentView === 'instagram' && <InstagramView />}
         {currentView === 'document' && <DocumentView fileUrl={fileUrl} title={DocTitle}/>}
         {currentView === 'audio' && <AudioView/>}
-        {currentView === 'video' && <VideoView/>}
+        {currentView === 'video' && <VideoView url={fileUrl} title={DocTitle} />}
       </div>
     </div>
   );

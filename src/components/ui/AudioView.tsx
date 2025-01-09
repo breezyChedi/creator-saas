@@ -7,28 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Music, Volume2, SkipBack, SkipForward, Play, Pause, Repeat } from "lucide-react";
 
-interface AudioContent {
-  id: string;
+interface AudioProps {
   title: string;
-  artist: string;
   url: string;
-  duration: string;
-  coverArt: string;
 }
 
-export const AudioView = () => {
-  const [currentAudio, setCurrentAudio] = useState<AudioContent | null>(null);
+export const AudioView = ({url, title}: AudioProps) => {
+  const [currentAudio, setCurrentAudio] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(100);
   const [progress, setProgress] = useState(0);
+  const [audTitle, setTitle] = useState("")
 
   useEffect(() => {
     // Fetch audio data from API
     const fetchAudio = async () => {
       try {
-        const response = await fetch('/api/resources?type=audio');
-        const data = await response.json();
-        setCurrentAudio(data);
+        setCurrentAudio(url);
+        setTitle(title)
       } catch (error) {
         console.error('Error fetching audio:', error);
       }
@@ -43,7 +39,7 @@ export const AudioView = () => {
         <CardHeader className="py-4">
           <CardTitle className="flex items-center gap-2">
             <Music className="h-5 w-5" />
-            {currentAudio?.title || 'Audio Player'}
+            {audTitle || 'Audio Player'}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -57,10 +53,7 @@ export const AudioView = () => {
                 />
               )}
             </div>
-            <div className="text-center">
-              <h3 className="font-medium">{currentAudio?.title}</h3>
-              <p className="text-sm text-muted-foreground">{currentAudio?.artist}</p>
-            </div>
+            
             <div className="w-full max-w-md">
               <input
                 type="range"

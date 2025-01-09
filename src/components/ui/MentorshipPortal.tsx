@@ -2027,6 +2027,8 @@ export default function MentorshipPortal() {
                                             break;
                                           case 'audio':
                                             setCurrentView('audio');
+                                            setTitle(resource.title)
+                                            setFileUrl(resource.fileUrl)
                                             break;
                                           default:
                                             setCurrentView('course');
@@ -4368,7 +4370,7 @@ export default function MentorshipPortal() {
         {currentView === 'twitter' && <TwitterView />}
         {currentView === 'instagram' && <InstagramView />}
         {currentView === 'document' && <DocumentView fileUrl={fileUrl} title={DocTitle}/>}
-        {currentView === 'audio' && <AudioView/>}
+        {currentView === 'audio' && <AudioView url={fileUrl} title={DocTitle}/>}
         {currentView === 'video' && <VideoView url={fileUrl} title={DocTitle} />}
       </div>
     </div>

@@ -61,13 +61,14 @@ export function Step2Form() {
       
       // Get download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("file: ", downloadURL)
+      console.log("file url: ", downloadURL)
       
       // Set the fileUrl in the form
       setValue('fileUrl', downloadURL);
 
       if (resourceType === "video") {
         // Create video element to get metadata
+        console.log("form video")
         const video = document.createElement('video')
         video.preload = 'metadata'
         video.src = URL.createObjectURL(uploadedFile)
@@ -86,6 +87,7 @@ export function Step2Form() {
       } 
       else if (resourceType === "audio") {
         // Create audio element to get metadata
+        console.log("form audio")
         const audio = document.createElement('audio')
         audio.preload = 'metadata'
         audio.src = URL.createObjectURL(uploadedFile)

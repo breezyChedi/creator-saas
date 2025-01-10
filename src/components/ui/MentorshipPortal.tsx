@@ -1547,6 +1547,7 @@ export default function MentorshipPortal() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [DocTitle,setTitle] = useState("")
   const [fileUrl, setFileUrl] = useState("")
+  const [selectedCourse, setSelectedCourse] = useState("")
   const Sidebar = () => {
     const [showProfileDialog, setShowProfileDialog] = useState(false);
     const [currentProfileView, setCurrentProfileView] = useState('details');
@@ -2031,6 +2032,8 @@ export default function MentorshipPortal() {
                                             setFileUrl(resource.fileUrl)
                                             break;
                                           default:
+                                            setSelectedCourse(resource)
+                                            setTitle(resource.title)
                                             setCurrentView('course');
                                         }
                                       }}
@@ -3152,22 +3155,38 @@ export default function MentorshipPortal() {
     const [isAdminView, setIsAdminView] = useState(false);
 
     useEffect(() => {
-      const fetchCourses = async () => {
+      const fetchCourses = async (courseTitle?: string) => {
         try {
-          const response = await fetch('/api/course', {
+          // Build the URL with optional courseTitle parameter
+          const url = courseTitle 
+            ? `/api/course?courseTitle=${encodeURIComponent(courseTitle)}`
+            : '/api/course';
+    
+          const response = await fetch(url, {
             credentials: 'include'
           });
+          
           if (!response.ok) {
             throw new Error('Failed to fetch courses');
           }
+          
           const data = await response.json();
-          setCourses(data.courses);
+          
+          // If courseTitle was provided, we're fetching a single course
+          if (courseTitle) {
+            setCourses([data.course]); // Wrap single course in array
+          } else {
+            setCourses(data.courses); // Set all courses
+          }
         } catch (error) {
           console.error('Error fetching courses:', error);
         }
       };
-
-      fetchCourses();
+    
+      // You can call fetchCourses with or without a title
+      fetchCourses(DocTitle); // Fetch all courses
+      // Or fetch a specific course:
+      // fetchCourses('Course Title Here');
     }, []);
 
     return (
@@ -3202,11 +3221,12 @@ export default function MentorshipPortal() {
 
   // Member facing view
   const MemberCourseView = ({ courses }: { courses: any[] }) => {
+    console.log("course:  ", courses)
     return (
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Course: Advanced JavaScript Concepts</CardTitle>
+            <CardTitle>Course: Advanced JavaScript Concepts {courses[0].title}</CardTitle>
             <Badge variant="secondary">Progress: 45%</Badge>
           </div>
         </CardHeader>

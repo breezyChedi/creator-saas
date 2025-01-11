@@ -6,7 +6,7 @@ import { UploadArea } from "@/components/upload-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ResourceFormData, ResourceType } from "@/app/types/resource"
 import { PlusCircle, Trash2, Upload } from 'lucide-react'
-import { useState, useCallback} from 'react'
+import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebase/firebaseConfig";
@@ -55,14 +55,14 @@ export function Step2Form() {
       setFile(uploadedFile)
 
       const storageRef = ref(storage, `resources/${resourceType}/${uploadedFile.name}`);
-      
+
       // Upload file to Firebase Storage
       const snapshot = await uploadBytes(storageRef, uploadedFile);
-      
+
       // Get download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
       console.log("file url: ", downloadURL)
-      
+
       // Set the fileUrl in the form
       setValue('fileUrl', downloadURL);
 
@@ -72,26 +72,26 @@ export function Step2Form() {
         const video = document.createElement('video')
         video.preload = 'metadata'
         video.src = URL.createObjectURL(uploadedFile)
-        
+
         video.onloadedmetadata = () => {
           // Set duration in minutes
           setValue('videoDetails.duration', Math.ceil(video.duration / 60))
-          
+
           // Determine resolution
           const resolution = video.videoHeight >= 2160 ? "4K" :
-                           video.videoHeight >= 1440 ? "1440p" :
-                           video.videoHeight >= 1080 ? "1080p" : "720p"
+            video.videoHeight >= 1440 ? "1440p" :
+              video.videoHeight >= 1080 ? "1080p" : "720p"
           setValue('videoDetails.resolution', resolution)
           URL.revokeObjectURL(video.src)
         }
-      } 
+      }
       else if (resourceType === "audio") {
         // Create audio element to get metadata
         console.log("form audio")
         const audio = document.createElement('audio')
         audio.preload = 'metadata'
         audio.src = URL.createObjectURL(uploadedFile)
-        
+
         audio.onloadedmetadata = () => {
           // Set duration in minutes
           setValue('audioDetails.duration', Math.ceil(audio.duration / 60))
@@ -110,7 +110,7 @@ export function Step2Form() {
   }, [resourceType, setValue])
 
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: getAcceptedFiles(),
     maxFiles: 1,
@@ -165,85 +165,96 @@ export function Step2Form() {
       }
     }
   }
-      return (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="type">Resource Type</Label>
-            <Select
-              onValueChange={(value) => {setValue("type", value as ResourceType); setFile(null)}}
-              value={watch("type")}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select resource type" />
-              </SelectTrigger>
-              <SelectContent>
-                {resourceTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.type && <p className="text-sm text-red-500">{errors.type.message}</p>}
-          </div>
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="type">Resource Type</Label>
+        <Select
+          onValueChange={(value) => { setValue("type", value as ResourceType); setFile(null) }}
+          value={watch("type")}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select resource type" />
+          </SelectTrigger>
+          <SelectContent>
+            {resourceTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.type && <p className="text-sm text-red-500">{errors.type.message}</p>}
+      </div>
 
-          {(resourceType === "document" || resourceType === "video" || resourceType === "audio") && (
+      {(resourceType === "document" || resourceType === "video" || resourceType === "audio") && (
         <div className="space-y-4">
           {renderFileUpload()}
         </div>
       )}
-          
- {resourceType === "course" && (
-            <div className="space-y-4">
-              <Label>Course Modules</Label>
-              {modules.map((module, moduleIndex) => (
-                <div key={module.id} className="space-y-2 p-4 border border-neutral-200 rounded-md dark:border-neutral-800">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor={`modules.${moduleIndex}.title`}>Module Title</Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeModule(moduleIndex)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Input
-                    id={`modules.${moduleIndex}.title`}
-                    {...register(`modules.${moduleIndex}.title` as const, { required: "Module title is required" })}
-                    placeholder="Enter module title"
-                  />
-                  {errors.modules?.[moduleIndex]?.title && (
-                    <p className="text-sm text-red-500">{errors.modules[moduleIndex]?.title?.message}</p>
-                  )}
 
-                  <Label htmlFor={`modules.${moduleIndex}.chapters`}>Chapters (comma-separated)</Label>
-                  <Input
-                    id={`modules.${moduleIndex}.chapters`}
-                    {...register(`modules.${moduleIndex}.chapters` as const, { required: "At least one chapter is required" })}
-                    placeholder="Enter chapter titles, separated by commas"
-                  />
-                  {errors.modules?.[moduleIndex]?.chapters && (
-                    <p className="text-sm text-red-500">{errors.modules[moduleIndex]?.chapters?.message}</p>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => appendModule({ title: "", chapters: [] })}
-              >
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add Module
-              </Button>
+      {resourceType === "course" && (
+        <div className="space-y-4">
+          <Label>Course Modules</Label>
+          {modules.map((module, moduleIndex) => (
+            <div key={module.id} className="space-y-2 p-4 border border-neutral-200 rounded-md dark:border-neutral-800">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={`modules.${moduleIndex}.title`}>Module Title</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeModule(moduleIndex)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <Input
+                id={`modules.${moduleIndex}.title`}
+                {...register(`modules.${moduleIndex}.title` as const, { required: "Module title is required" })}
+                placeholder="Enter module title"
+              />
+              {errors.modules?.[moduleIndex]?.title && (
+                <p className="text-sm text-red-500">{errors.modules[moduleIndex]?.title?.message}</p>
+              )}
+
+              <Label htmlFor={`modules.${moduleIndex}.chapters`}>Chapters (comma-separated)</Label>
+              <Input
+                id={`modules.${moduleIndex}.chapters`}
+                {...register(`modules.${moduleIndex}.chapters` as const, {
+                  required: "At least one chapter is required",
+                  setValueAs: (value: any) => {
+                    if (Array.isArray(value)) return value;
+                    if (typeof value === 'string' && value.trim()) {
+                      return value.split(',')
+                        .map(chapter => chapter.trim())
+                        .filter(Boolean);
+                    }
+                    return [];
+                  }
+                })}
+                placeholder="Enter chapter titles, separated by commas"
+              />
+              {errors.modules?.[moduleIndex]?.chapters && (
+                <p className="text-sm text-red-500">{errors.modules[moduleIndex]?.chapters?.message}</p>
+              )}
             </div>
-          )}
-
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => appendModule({ title: "", chapters: [] })}
+          >
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add Module
+          </Button>
         </div>
-      )
-    }
+      )}
+
+    </div>
+  )
+}
 
 /*
 {resourceType === "document" && (

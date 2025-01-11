@@ -141,6 +141,9 @@ import { ResourceCreationDialog } from '../resource-creation-dialog';
 import { DocumentView } from './DocumentView';
 import { AudioView } from './AudioView';
 import { VideoView } from './VideoView';
+import { ResourceFormData } from "@/app/types/resource";
+import { getFirestore } from 'firebase/firestore';
+import {db} from '@/firebase/firebaseConfig'
 
 interface Task {
   title: string;
@@ -155,6 +158,23 @@ interface Task {
   createdAt: string;
   createdBy: string;
 }
+
+interface Chapter {
+  title: string;
+  completed: boolean;
+  current: boolean;
+  id: Number;
+}
+
+interface Module {
+  title: string;
+  chapters: Chapter[];
+}
+
+interface CourseData {
+  modules: Module[];
+}
+
 
 const DashboardView = () => {
   const [selectedChat, setSelectedChat] = useState({
@@ -3150,6 +3170,10 @@ export default function MentorshipPortal() {
     );
   };
 
+  interface CourseViewProps {
+    courses: ResourceFormData[];
+  }
+
   const CourseView = () => {
     const [courses, setCourses] = useState<any[]>([]);
     const [isAdminView, setIsAdminView] = useState(false);
@@ -3220,13 +3244,13 @@ export default function MentorshipPortal() {
   };
 
   // Member facing view
-  const MemberCourseView = ({ courses }: { courses: any[] }) => {
+  const MemberCourseView = ({ courses }: CourseViewProps) => {
     console.log("course:  ", courses)
     return (
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Course: Advanced JavaScript Concepts {courses[0].title}</CardTitle>
+            <CardTitle>Course: Advanced JavaScript Concepts {courses && courses.length > 0 ? courses[0].title : "No course selected"}</CardTitle>
             <Badge variant="secondary">Progress: 45%</Badge>
           </div>
         </CardHeader>
@@ -3296,7 +3320,7 @@ export default function MentorshipPortal() {
                         { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
                       ]
                     }
-                  ].map((module, i) => {
+                  ].map((module, i) => { 
                     // Check if all lessons are completed
                     const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
 
@@ -3528,7 +3552,7 @@ export default function MentorshipPortal() {
   };
 
   // Admin editing view - contains the original implementation
-  const AdminCourseView = ({ courses }: { courses: any[] }) => {
+  const AdminCourseView = ({ courses }: CourseViewProps) => {
     return (
       <Card>
         <CardHeader>

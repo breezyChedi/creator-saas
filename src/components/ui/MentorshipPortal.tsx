@@ -1568,6 +1568,8 @@ export default function MentorshipPortal() {
   const [DocTitle,setTitle] = useState("")
   const [fileUrl, setFileUrl] = useState("")
   const [selectedCourse, setSelectedCourse] = useState("")
+  const [resId,setId] = useState("")
+  const userId = auth.currentUser?.uid;
   const Sidebar = () => {
     const [showProfileDialog, setShowProfileDialog] = useState(false);
     const [currentProfileView, setCurrentProfileView] = useState('details');
@@ -1880,6 +1882,7 @@ export default function MentorshipPortal() {
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     
+    
 
     const [newResource, setNewResource] = useState({
       title: '',
@@ -1901,6 +1904,7 @@ export default function MentorshipPortal() {
           }
 
           const data = await response.json();
+         // console.log(data)
           setResources(data);
         } catch (error) {
           toast({
@@ -1921,8 +1925,9 @@ export default function MentorshipPortal() {
     function setShowSecondStep(arg0: boolean): void {
       throw new Error('Function not implemented.');
     }
-
+    //console.log(resources)
     return (
+      
       <div className="space-y-6 pt-10">
         <Card>
           <CardHeader>
@@ -2054,6 +2059,7 @@ export default function MentorshipPortal() {
                                           default:
                                             setSelectedCourse(resource)
                                             setTitle(resource.title)
+                                            setId(resource.id)
                                             setCurrentView('course');
                                         }
                                       }}
@@ -3174,6 +3180,9 @@ export default function MentorshipPortal() {
     courses: ResourceFormData[];
   }
 
+  
+
+
   const CourseView = () => {
     const [courses, setCourses] = useState<any[]>([]);
     const [isAdminView, setIsAdminView] = useState(false);
@@ -3233,9 +3242,9 @@ export default function MentorshipPortal() {
             )}
           </Button>
         </div>
-
+            
         {isAdminView ? (
-          <AdminCourseView courses={courses} />
+          <AdminCourseView courseId={resId} userId={userId} />
         ) : (
           <MemberCourseView courses={courses} />
         )}
@@ -3551,8 +3560,35 @@ export default function MentorshipPortal() {
     );
   };
 
+  
+  
+interface AdminCourseViewProps {
+  courseId: string;
+  userId: string;
+}
   // Admin editing view - contains the original implementation
-  const AdminCourseView = ({ courses }: CourseViewProps) => {
+  const AdminCourseView = ({ courseId, userId}: AdminCourseViewProps) => {
+
+    const [modules, setModules] = useState([]);
+
+useEffect(() => {
+  const fetchModules = async () => {
+    try {
+      const response = await fetch(`/api/course-modules?courseId=${courseId}&userId=${userId}`);
+      const data = await response.json();
+      
+      if (data.modules) {
+        setModules(data.modules);
+      }
+    } catch (error) {
+      console.error('Error fetching modules:', error);
+    }
+  };
+
+  fetchModules();
+}, [courseId, userId]);
+  console.log("modules:  ",modules)
+
     return (
       <Card>
         <CardHeader>
@@ -3573,7 +3609,8 @@ export default function MentorshipPortal() {
                   {/* Vertical line connecting modules */}
                   <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-border" />
 
-                  {[
+                  {
+                  /*[
                     {
                       title: "Introduction to Advanced JS",
                       completed: true,
@@ -3628,7 +3665,9 @@ export default function MentorshipPortal() {
                         { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
                       ]
                     }
-                  ].map((module, i) => {
+                  ]*/
+                  
+                  modules.map((module, i) => {
                     // Check if all lessons are completed
                     const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
 

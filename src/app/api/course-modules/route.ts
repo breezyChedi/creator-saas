@@ -9,6 +9,9 @@ export async function GET(request: Request) {
     const courseId = searchParams.get('courseId');
     const userId = searchParams.get('userId');
 
+    console.log("route course id: ", courseId)
+    console.log("route user id: ", userId)
+
     if (!courseId || !userId) {
       return NextResponse.json(
         { error: 'Course ID and User ID are required' }, 
@@ -37,6 +40,20 @@ export async function GET(request: Request) {
 
     // Initialize user's course data
     const courseData = resourceDoc.data();
+
+    if (courseData.modules) {
+        courseData.modules = courseData.modules.map((module: any, index: number) => ({
+          ...module,
+          completed: false,
+          current: index === 0, // Only first module gets current: true
+          // If module has chapters, initialize their properties too
+          chapters: module.chapters?.map((chapter: any, chapterIndex: number) => ({
+            ...chapter,
+            completed: false,
+            current: index === 0 && chapterIndex === 0 // Only first chapter of first module gets current: true
+          })) || []
+        }));
+      }
     // ... format course data for user ...
 
     return NextResponse.json(courseData);

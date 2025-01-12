@@ -3193,7 +3193,7 @@ export default function MentorshipPortal() {
     courses: ResourceFormData[];
   }
 
-  
+
 
 
   const [chapter, setChapter] = useState<Chapter>({
@@ -3597,7 +3597,7 @@ export default function MentorshipPortal() {
 
     const [modules, setModules] = useState([]);
 
-    
+
 
     const handleFileUpload = async (file: File) => {
       try {
@@ -3716,14 +3716,14 @@ export default function MentorshipPortal() {
             updates: chapterData
           }),
         });
-    
+
         if (!response.ok) {
           throw new Error('Failed to update chapter');
         }
-    
+
         // If Firebase update is successful, update local state
         setChapter(chapterData);
-    
+
       } catch (error) {
         console.error('Error updating chapter:', error);
         // You might want to show an error toast or handle the error in some way
@@ -3993,13 +3993,16 @@ export default function MentorshipPortal() {
                                 if (file) {
                                   try {
                                     // Upload video file
-                                    const videoUrl = await uploadFile(file, 'videos');
+                                    const videoUrl = await uploadFile(file);
 
-                                    // Update chapter with video URL
-                                    setChapter(prev => ({
-                                      ...prev,
+                                    // Create updated chapter data
+                                    const updatedChapter = {
+                                      ...chapter,
                                       vidUrl: videoUrl
-                                    }));
+                                    };
+
+                                    // Update chapter using the provided function
+                                    await updateChapter(selectedModuleIndex, selectedChapterIndex, updatedChapter);
 
                                     toast({
                                       title: "Success",
@@ -4022,6 +4025,7 @@ export default function MentorshipPortal() {
                             </label>
                           </div>
                         </div>
+
                         <div>
                           <label className="block text-sm font-medium mb-2">Upload Documents</label>
                           <div className="border-2 border-dashed rounded-lg p-4 text-center">
@@ -4035,19 +4039,22 @@ export default function MentorshipPortal() {
                                 if (file) {
                                   try {
                                     // Upload document file
-                                    const docUrl = await uploadFile(file, 'documents');
+                                    const docUrl = await uploadFile(file);
 
-                                    // Add document to chapter files array
-                                    setChapter(prev => ({
-                                      ...prev,
+                                    // Create updated chapter data
+                                    const updatedChapter = {
+                                      ...chapter,
                                       files: [
-                                        ...(prev.files || []),
+                                        ...(chapter.files || []),
                                         {
                                           name: file.name,
                                           url: docUrl
                                         }
                                       ]
-                                    }));
+                                    };
+
+                                    // Update chapter using the provided function
+                                    await updateChapter(selectedModuleIndex, selectedChapterIndex, updatedChapter);
 
                                     toast({
                                       title: "Success",
@@ -4078,19 +4085,35 @@ export default function MentorshipPortal() {
                           type="url"
                           placeholder="Enter Google Drive or external link"
                           className="w-full rounded-md border border-input px-3 py-2"
-                          onChange={(e) => {
-                            // Add external URL to files array
+                          onBlur={async (e) => {
                             if (e.target.value) {
-                              setChapter(prev => ({
-                                ...prev,
-                                files: [
-                                  ...(prev.files || []),
-                                  {
-                                    name: 'External Resource',
-                                    url: e.target.value
-                                  }
-                                ]
-                              }));
+                              try {
+                                // Create updated chapter data
+                                const updatedChapter = {
+                                  ...chapter,
+                                  files: [
+                                    ...(chapter.files || []),
+                                    {
+                                      name: 'External Resource',
+                                      url: e.target.value
+                                    }
+                                  ]
+                                };
+
+                                // Update chapter using the provided function
+                                await updateChapter(selectedModuleIndex, selectedChapterIndex, updatedChapter);
+
+                                toast({
+                                  title: "Success",
+                                  description: "External resource added successfully",
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to add external resource",
+                                  variant: "destructive"
+                                });
+                              }
                             }
                           }}
                         />

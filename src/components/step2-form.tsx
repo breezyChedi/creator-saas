@@ -224,17 +224,26 @@ export function Step2Form() {
                 {...register(`modules.${moduleIndex}.chapters` as const, {
                   required: "At least one chapter is required",
                   setValueAs: (value: any) => {
-                    if (Array.isArray(value)) return value;
+                    if (Array.isArray(value)) {
+                      // If value is already an array of objects, return it as is
+                      return value.map(chapter =>
+                        typeof chapter === 'string' ? { name: chapter } : chapter
+                      );
+                    }
                     if (typeof value === 'string' && value.trim()) {
-                      return value.split(',')
+                      // Split the string by commas, trim each chapter, and map to objects
+                      return value
+                        .split(',')
                         .map(chapter => chapter.trim())
-                        .filter(Boolean);
+                        .filter(Boolean)
+                        .map(chapter => ({ name: chapter })); // Wrap each chapter in an object with a `name` property
                     }
                     return [];
-                  }
+                  },
                 })}
                 placeholder="Enter chapter titles, separated by commas"
               />
+
               {errors.modules?.[moduleIndex]?.chapters && (
                 <p className="text-sm text-red-500">{errors.modules[moduleIndex]?.chapters?.message}</p>
               )}

@@ -4,6 +4,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 export async function uploadFile(file: File, path: string = 'course-content'): Promise<string> {
   try {
     // Create a unique filename using timestamp
+
+    
     const timestamp = Date.now();
     const filename = `${timestamp}-${file.name}`;
     

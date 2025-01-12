@@ -3193,6 +3193,8 @@ export default function MentorshipPortal() {
     courses: ResourceFormData[];
   }
 
+  
+
 
   const [chapter, setChapter] = useState<Chapter>({
     title: '',
@@ -3698,6 +3700,35 @@ export default function MentorshipPortal() {
         console.log("Current chapter updated:", currentChapter);
       }
     }, [currentChapter]);
+
+    const updateChapter = async (moduleIndex: number, chapterIndex: number, chapterData: Chapter) => {
+      try {
+        // Make API call to update chapter in Firebase
+        const response = await fetch('/api/chapter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            courseId: courseId, // You'll need to have courseId available in your component
+            moduleIndex: moduleIndex,
+            chapterIndex: chapterIndex,
+            updates: chapterData
+          }),
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to update chapter');
+        }
+    
+        // If Firebase update is successful, update local state
+        setChapter(chapterData);
+    
+      } catch (error) {
+        console.error('Error updating chapter:', error);
+        // You might want to show an error toast or handle the error in some way
+      }
+    };
 
     return (
       <Card>

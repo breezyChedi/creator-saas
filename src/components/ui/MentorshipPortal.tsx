@@ -160,12 +160,7 @@ interface Task {
   createdBy: string;
 }
 
-interface Chapter {
-  title: string;
-  completed: boolean;
-  current: boolean;
-  id: Number;
-}
+
 
 interface Module {
   title: string;
@@ -3199,7 +3194,14 @@ export default function MentorshipPortal() {
   }
 
 
-
+  const [chapter, setChapter] = useState<Chapter>({
+    title: '',
+    vidUrl: '',
+    content: '',
+    files: [],
+    completed: false,
+    current: false
+  });
 
   const CourseView = () => {
     const [courses, setCourses] = useState<any[]>([]);
@@ -3593,6 +3595,8 @@ export default function MentorshipPortal() {
 
     const [modules, setModules] = useState([]);
 
+    
+
     const handleFileUpload = async (file: File) => {
       try {
         // Upload file logic here (using your existing upload-area component)
@@ -3671,9 +3675,9 @@ export default function MentorshipPortal() {
             );
 
             if (currentChapterIndex !== -1) {
-             
+
               setSelectedChapterIndex(currentChapterIndex);
-               console.log("mod: ", data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
+              console.log("mod: ", data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
               setCurrentChapter(data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
             }
           }
@@ -3948,7 +3952,39 @@ export default function MentorshipPortal() {
                         <div>
                           <label className="block text-sm font-medium mb-2">Upload Video Content</label>
                           <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                            <input type="file" accept="video/*" className="hidden" id="video-upload" />
+                            <input
+                              type="file"
+                              accept="video/*"
+                              className="hidden"
+                              id="video-upload"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  try {
+                                    // Upload video file
+                                    const videoUrl = await uploadFile(file, 'videos');
+
+                                    // Update chapter with video URL
+                                    setChapter(prev => ({
+                                      ...prev,
+                                      vidUrl: videoUrl
+                                    }));
+
+                                    toast({
+                                      title: "Success",
+                                      description: "Video uploaded successfully",
+                                    });
+                                  } catch (error) {
+                                    console.error('Error uploading video:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to upload video",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }
+                              }}
+                            />
                             <label htmlFor="video-upload" className="cursor-pointer">
                               <Video className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                               <span className="text-sm text-muted-foreground">Click to upload video</span>
@@ -3958,7 +3994,45 @@ export default function MentorshipPortal() {
                         <div>
                           <label className="block text-sm font-medium mb-2">Upload Documents</label>
                           <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                            <input type="file" accept=".pdf,.doc,.docx" className="hidden" id="doc-upload" />
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx"
+                              className="hidden"
+                              id="doc-upload"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  try {
+                                    // Upload document file
+                                    const docUrl = await uploadFile(file, 'documents');
+
+                                    // Add document to chapter files array
+                                    setChapter(prev => ({
+                                      ...prev,
+                                      files: [
+                                        ...(prev.files || []),
+                                        {
+                                          name: file.name,
+                                          url: docUrl
+                                        }
+                                      ]
+                                    }));
+
+                                    toast({
+                                      title: "Success",
+                                      description: "Document uploaded successfully",
+                                    });
+                                  } catch (error) {
+                                    console.error('Error uploading document:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to upload document",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }
+                              }}
+                            />
                             <label htmlFor="doc-upload" className="cursor-pointer">
                               <BookOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                               <span className="text-sm text-muted-foreground">Click to upload documents</span>
@@ -3973,12 +4047,26 @@ export default function MentorshipPortal() {
                           type="url"
                           placeholder="Enter Google Drive or external link"
                           className="w-full rounded-md border border-input px-3 py-2"
+                          onChange={(e) => {
+                            // Add external URL to files array
+                            if (e.target.value) {
+                              setChapter(prev => ({
+                                ...prev,
+                                files: [
+                                  ...(prev.files || []),
+                                  {
+                                    name: 'External Resource',
+                                    url: e.target.value
+                                  }
+                                ]
+                              }));
+                            }
+                          }}
                         />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-
                 {/* Quiz Section */}
                 <Card>
                   <CardHeader>

@@ -4,7 +4,11 @@ import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export async function GET(request: Request) {
-  try {
+    console.log("Incoming request URL:", request.url);
+
+  try 
+  {
+    
     const { searchParams } = new URL(request.url);
     const courseId = searchParams.get('courseId');
     const userId = searchParams.get('userId');

@@ -176,6 +176,23 @@ interface CourseData {
   modules: Module[];
 }
 
+interface Chapter {
+  title: string;
+  vidUrl?: string;
+  content?: string;
+  files?: Array<{ name: string; url: string; }>;
+  quiz?: {
+    questions: Array<{
+      question: string;
+      options: string[];
+      correctAnswer: number;
+      feedback: string;
+    }>;
+  };
+  completed: boolean;
+  current: boolean;
+}
+
 
 const DashboardView = () => {
   const [selectedChat, setSelectedChat] = useState({
@@ -3571,8 +3588,8 @@ export default function MentorshipPortal() {
   const AdminCourseView = ({ courseId, userId }: AdminCourseViewProps) => {
 
     const [currentChapter, setCurrentChapter] = useState(null);
-    const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
-    const [selectedChapterIndex, setSelectedChapterIndex] = useState(null);
+    const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
+    const [selectedChapterIndex, setSelectedChapterIndex] = useState(0);
 
     const [modules, setModules] = useState([]);
 
@@ -3580,7 +3597,7 @@ export default function MentorshipPortal() {
       try {
         // Upload file logic here (using your existing upload-area component)
         const fileUrl = await uploadFile(file); // Implement this function
-    
+
         // Update chapter with new file
         const response = await fetch('/api/chapter', {
           method: 'POST',
@@ -3596,7 +3613,7 @@ export default function MentorshipPortal() {
             }
           })
         });
-    
+
         if (!response.ok) {
           throw new Error('Failed to update chapter');
         }
@@ -3604,7 +3621,7 @@ export default function MentorshipPortal() {
         console.error('Error uploading file:', error);
       }
     };
-    
+
     const handleQuizUpdate = async (quizData: any) => {
       try {
         const response = await fetch('/api/chapter', {
@@ -3621,7 +3638,7 @@ export default function MentorshipPortal() {
             }
           })
         });
-    
+
         if (!response.ok) {
           throw new Error('Failed to update quiz');
         }
@@ -3639,6 +3656,30 @@ export default function MentorshipPortal() {
           if (data.modules) {
             setModules(data.modules);
           }
+          console.log(" modules set", data.modules)
+
+          const currentModuleIndex = data.modules.findIndex(
+            (module: any) => module.current === true
+          );
+
+          if (currentModuleIndex !== -1) {
+            setSelectedModuleIndex(currentModuleIndex);
+
+            // Find the current chapter within the current module
+            const currentChapterIndex = data.modules[currentModuleIndex].chapters.findIndex(
+              (chapter: any) => chapter.current === true
+            );
+
+            if (currentChapterIndex !== -1) {
+             
+              setSelectedChapterIndex(currentChapterIndex);
+               console.log("mod: ", data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
+              setCurrentChapter(data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
+            }
+          }
+
+          console.log("Curr chap", currentChapter)
+
         } catch (error) {
           console.error('Error fetching modules:', error);
         }
@@ -3648,11 +3689,17 @@ export default function MentorshipPortal() {
     }, [courseId, userId]);
     console.log("modules:  ", modules)
 
+    useEffect(() => {
+      if (currentChapter) {
+        console.log("Current chapter updated:", currentChapter);
+      }
+    }, [currentChapter]);
+
     return (
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Course: Advanced JavaScript Concepts</CardTitle>
+            <CardTitle>{modules[selectedModuleIndex] ? modules[selectedModuleIndex].title : 'Loading...'} : {currentChapter ? currentChapter.name : ''}</CardTitle>
             <Badge variant="secondary">Progress: 45%</Badge>
           </div>
         </CardHeader>
@@ -3761,13 +3808,13 @@ export default function MentorshipPortal() {
                           const response = await fetch(
                             `/api/chapter?courseId=${courseId}&moduleIndex=${moduleIndex}&chapterIndex=${chapterIndex}`
                           );
-                          
+
                           if (!response.ok) {
                             throw new Error('Failed to fetch chapter data');
                           }
-                      
+
                           const { chapter } = await response.json();
-                          
+
                           // Update the UI with chapter data
                           setCurrentChapter(chapter);
                           setSelectedModuleIndex(moduleIndex);

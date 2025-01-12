@@ -57,7 +57,8 @@ export async function POST(request: Request) {
     await courseRef.update({
       [`modules.${moduleIndex}.chapters.${chapterIndex}.content`]: updates.content,
       [`modules.${moduleIndex}.chapters.${chapterIndex}.files`]: updates.files,
-      [`modules.${moduleIndex}.chapters.${chapterIndex}.quiz`]: updates.quiz
+      [`modules.${moduleIndex}.chapters.${chapterIndex}.quiz`]: updates.quiz,
+      [`modules.${moduleIndex}.chapters.${chapterIndex}.vidUrl`]: updates.vidUrl
     });
 
     return NextResponse.json({ success: true });

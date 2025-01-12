@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import HeroVideoDialog from "@/components/ui/hero-video-dialog";
 import { auth } from '@/firebase/firebaseConfig';
+import { uploadFile } from "@/lib/uploadFile";
 import {
   Dialog,
   DialogContent,
@@ -143,7 +144,7 @@ import { AudioView } from './AudioView';
 import { VideoView } from './VideoView';
 import { ResourceFormData } from "@/app/types/resource";
 import { getFirestore } from 'firebase/firestore';
-import {db} from '@/firebase/firebaseConfig'
+import { db } from '@/firebase/firebaseConfig'
 
 interface Task {
   title: string;
@@ -1565,10 +1566,10 @@ export default function MentorshipPortal() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [DocTitle,setTitle] = useState("")
+  const [DocTitle, setTitle] = useState("")
   const [fileUrl, setFileUrl] = useState("")
   const [selectedCourse, setSelectedCourse] = useState("")
-  const [resId,setId] = useState("")
+  const [resId, setId] = useState("")
   const userId = auth.currentUser?.uid;
   const Sidebar = () => {
     const [showProfileDialog, setShowProfileDialog] = useState(false);
@@ -1881,8 +1882,8 @@ export default function MentorshipPortal() {
     const [resources, setResources] = useState<any[]>([]);
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    
-    
+
+
 
     const [newResource, setNewResource] = useState({
       title: '',
@@ -1904,7 +1905,7 @@ export default function MentorshipPortal() {
           }
 
           const data = await response.json();
-         // console.log(data)
+          // console.log(data)
           setResources(data);
         } catch (error) {
           toast({
@@ -1927,7 +1928,7 @@ export default function MentorshipPortal() {
     }
     //console.log(resources)
     return (
-      
+
       <div className="space-y-6 pt-10">
         <Card>
           <CardHeader>
@@ -3180,7 +3181,7 @@ export default function MentorshipPortal() {
     courses: ResourceFormData[];
   }
 
-  
+
 
 
   const CourseView = () => {
@@ -3191,20 +3192,20 @@ export default function MentorshipPortal() {
       const fetchCourses = async (courseTitle?: string) => {
         try {
           // Build the URL with optional courseTitle parameter
-          const url = courseTitle 
+          const url = courseTitle
             ? `/api/course?courseTitle=${encodeURIComponent(courseTitle)}`
             : '/api/course';
-    
+
           const response = await fetch(url, {
             credentials: 'include'
           });
-          
+
           if (!response.ok) {
             throw new Error('Failed to fetch courses');
           }
-          
+
           const data = await response.json();
-          
+
           // If courseTitle was provided, we're fetching a single course
           if (courseTitle) {
             setCourses([data.course]); // Wrap single course in array
@@ -3215,7 +3216,7 @@ export default function MentorshipPortal() {
           console.error('Error fetching courses:', error);
         }
       };
-    
+
       // You can call fetchCourses with or without a title
       fetchCourses(DocTitle); // Fetch all courses
       // Or fetch a specific course:
@@ -3242,7 +3243,7 @@ export default function MentorshipPortal() {
             )}
           </Button>
         </div>
-            
+
         {isAdminView ? (
           <AdminCourseView courseId={resId} userId={userId} />
         ) : (
@@ -3329,7 +3330,7 @@ export default function MentorshipPortal() {
                         { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
                       ]
                     }
-                  ].map((module, i) => { 
+                  ].map((module, i) => {
                     // Check if all lessons are completed
                     const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
 
@@ -3560,34 +3561,92 @@ export default function MentorshipPortal() {
     );
   };
 
-  
-  
-interface AdminCourseViewProps {
-  courseId: string;
-  userId: string;
-}
+
+
+  interface AdminCourseViewProps {
+    courseId: string;
+    userId: string;
+  }
   // Admin editing view - contains the original implementation
-  const AdminCourseView = ({ courseId, userId}: AdminCourseViewProps) => {
+  const AdminCourseView = ({ courseId, userId }: AdminCourseViewProps) => {
+
+    const [currentChapter, setCurrentChapter] = useState(null);
+    const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
+    const [selectedChapterIndex, setSelectedChapterIndex] = useState(null);
 
     const [modules, setModules] = useState([]);
 
-useEffect(() => {
-  const fetchModules = async () => {
-    try {
-      const response = await fetch(`/api/course-modules?courseId=${courseId}&userId=${userId}`);
-      const data = await response.json();
-      
-      if (data.modules) {
-        setModules(data.modules);
+    const handleFileUpload = async (file: File) => {
+      try {
+        // Upload file logic here (using your existing upload-area component)
+        const fileUrl = await uploadFile(file); // Implement this function
+    
+        // Update chapter with new file
+        const response = await fetch('/api/chapter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            courseId,
+            moduleIndex: selectedModuleIndex,
+            chapterIndex: selectedChapterIndex,
+            updates: {
+              files: [...currentChapter.files, { name: file.name, url: fileUrl }]
+            }
+          })
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to update chapter');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
       }
-    } catch (error) {
-      console.error('Error fetching modules:', error);
-    }
-  };
+    };
+    
+    const handleQuizUpdate = async (quizData: any) => {
+      try {
+        const response = await fetch('/api/chapter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            courseId,
+            moduleIndex: selectedModuleIndex,
+            chapterIndex: selectedChapterIndex,
+            updates: {
+              quiz: quizData
+            }
+          })
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to update quiz');
+        }
+      } catch (error) {
+        console.error('Error updating quiz:', error);
+      }
+    };
 
-  fetchModules();
-}, [courseId, userId]);
-  console.log("modules:  ",modules)
+    useEffect(() => {
+      const fetchModules = async () => {
+        try {
+          const response = await fetch(`/api/course-modules?courseId=${courseId}&userId=${userId}`);
+          const data = await response.json();
+
+          if (data.modules) {
+            setModules(data.modules);
+          }
+        } catch (error) {
+          console.error('Error fetching modules:', error);
+        }
+      };
+
+      fetchModules();
+    }, [courseId, userId]);
+    console.log("modules:  ", modules)
 
     return (
       <Card>
@@ -3610,115 +3669,137 @@ useEffect(() => {
                   <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-border" />
 
                   {
-                  /*[
-                    {
-                      title: "Introduction to Advanced JS",
-                      completed: true,
-                      lessons: [
-                        { name: "Course Overview", completed: true, current: false, url: "/lessons/course-overview" },
-                        { name: "Setting Up Environment", completed: true, current: false, url: "/lessons/setup" }
-                      ]
-                    },
-                    {
-                      title: "Closures & Scope",
-                      completed: false,
-                      current: true,
-                      lessons: [
-                        { name: "Understanding Closures", completed: true, current: false, url: "/lessons/closures" },
-                        { name: "Lexical Scope", completed: false, current: true, url: "/lessons/lexical-scope" },
-                        { name: "Practical Applications", completed: false, current: false, url: "/lessons/practical-closures" }
-                      ]
-                    },
-                    {
-                      title: "Prototypes & Inheritance",
-                      completed: false,
-                      lessons: [
-                        { name: "Prototype Chain", completed: false, current: false, url: "/lessons/prototype-chain" },
-                        { name: "Inheritance Patterns", completed: false, current: false, url: "/lessons/inheritance" }
-                      ]
-                    },
-                    {
-                      title: "Asynchronous JavaScript",
-                      completed: false,
-                      lessons: [
-                        { name: "Promises Deep Dive", completed: false, current: false, url: "/lessons/promises" },
-                        { name: "Async/Await Patterns", completed: false, current: false, url: "/lessons/async-await" },
-                        { name: "Error Handling", completed: false, current: false, url: "/lessons/error-handling" }
-                      ]
-                    },
-                    {
-                      title: "Design Patterns",
-                      completed: false,
-                      lessons: [
-                        { name: "Singleton Pattern", completed: false, current: false, url: "/lessons/singleton" },
-                        { name: "Factory Pattern", completed: false, current: false, url: "/lessons/factory" },
-                        { name: "Observer Pattern", completed: false, current: false, url: "/lessons/observer" },
-                        { name: "Module Pattern", completed: false, current: false, url: "/lessons/module-pattern" }
-                      ]
-                    },
-                    {
-                      title: "Performance Optimization",
-                      completed: false,
-                      lessons: [
-                        { name: "Memory Management", completed: false, current: false, url: "/lessons/memory" },
-                        { name: "Code Splitting", completed: false, current: false, url: "/lessons/code-splitting" },
-                        { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
-                      ]
-                    }
-                  ]*/
-                  
-                  modules.map((module, i) => {
-                    // Check if all lessons are completed
-                    const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
-
-                    const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
-                      try {
-                        // Mark the lesson as completed
-                        const response = await fetch('/api/course/progress', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            moduleIndex,
-                            lessonIndex,
-                            completed: true
-                          })
-                        });
-
-                        if (!response.ok) {
-                          throw new Error('Failed to update lesson progress');
-                        }
-
-                        // Navigate to lesson content
-                        window.location.href = lessonUrl;
-                      } catch (error) {
-                        console.error('Error updating lesson progress:', error);
+                    /*[
+                      {
+                        title: "Introduction to Advanced JS",
+                        completed: true,
+                        lessons: [
+                          { name: "Course Overview", completed: true, current: false, url: "/lessons/course-overview" },
+                          { name: "Setting Up Environment", completed: true, current: false, url: "/lessons/setup" }
+                        ]
+                      },
+                      {
+                        title: "Closures & Scope",
+                        completed: false,
+                        current: true,
+                        lessons: [
+                          { name: "Understanding Closures", completed: true, current: false, url: "/lessons/closures" },
+                          { name: "Lexical Scope", completed: false, current: true, url: "/lessons/lexical-scope" },
+                          { name: "Practical Applications", completed: false, current: false, url: "/lessons/practical-closures" }
+                        ]
+                      },
+                      {
+                        title: "Prototypes & Inheritance",
+                        completed: false,
+                        lessons: [
+                          { name: "Prototype Chain", completed: false, current: false, url: "/lessons/prototype-chain" },
+                          { name: "Inheritance Patterns", completed: false, current: false, url: "/lessons/inheritance" }
+                        ]
+                      },
+                      {
+                        title: "Asynchronous JavaScript",
+                        completed: false,
+                        lessons: [
+                          { name: "Promises Deep Dive", completed: false, current: false, url: "/lessons/promises" },
+                          { name: "Async/Await Patterns", completed: false, current: false, url: "/lessons/async-await" },
+                          { name: "Error Handling", completed: false, current: false, url: "/lessons/error-handling" }
+                        ]
+                      },
+                      {
+                        title: "Design Patterns",
+                        completed: false,
+                        lessons: [
+                          { name: "Singleton Pattern", completed: false, current: false, url: "/lessons/singleton" },
+                          { name: "Factory Pattern", completed: false, current: false, url: "/lessons/factory" },
+                          { name: "Observer Pattern", completed: false, current: false, url: "/lessons/observer" },
+                          { name: "Module Pattern", completed: false, current: false, url: "/lessons/module-pattern" }
+                        ]
+                      },
+                      {
+                        title: "Performance Optimization",
+                        completed: false,
+                        lessons: [
+                          { name: "Memory Management", completed: false, current: false, url: "/lessons/memory" },
+                          { name: "Code Splitting", completed: false, current: false, url: "/lessons/code-splitting" },
+                          { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
+                        ]
                       }
-                    };
+                    ]*/
 
-                    return (
-                      <div key={i} className="mb-6 relative">
-                        <div className={`
+                    modules.map((module, i) => {
+                      // Check if all lessons are completed
+                      const isModuleCompleted = module.chapters?.every(chapter => chapter.completed);
+
+                      const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
+                        try {
+                          // Mark the lesson as completed
+                          const response = await fetch('/api/course/progress', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              moduleIndex,
+                              lessonIndex,
+                              completed: true
+                            })
+                          });
+
+                          if (!response.ok) {
+                            throw new Error('Failed to update lesson progress');
+                          }
+
+                          // Navigate to lesson content
+                          window.location.href = lessonUrl;
+                        } catch (error) {
+                          console.error('Error updating lesson progress:', error);
+                        }
+                      };
+                      const handleChapterClick = async (moduleIndex: number, chapterIndex: number) => {
+                        try {
+                          // Fetch chapter data
+                          const response = await fetch(
+                            `/api/chapter?courseId=${courseId}&moduleIndex=${moduleIndex}&chapterIndex=${chapterIndex}`
+                          );
+                          
+                          if (!response.ok) {
+                            throw new Error('Failed to fetch chapter data');
+                          }
+                      
+                          const { chapter } = await response.json();
+                          
+                          // Update the UI with chapter data
+                          setCurrentChapter(chapter);
+                          setSelectedModuleIndex(moduleIndex);
+                          setSelectedChapterIndex(chapterIndex);
+                        } catch (error) {
+                          console.error('Error fetching chapter:', error);
+                        }
+                      };
+
+
+                      return (
+                        <div key={i} className="mb-6 relative">
+                          <div className={`
                         border rounded-lg p-4
                         ${module.current ? 'border-primary bg-accent shadow-sm' : 'border-border'}
                       `}>
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className={`
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={`
                             w-5 h-5 rounded-full z-10 flex items-center justify-center
                             ${isModuleCompleted ? 'bg-primary' : module.current ? 'border-2 border-primary' : 'border-2 border-muted-foreground'}
                           `}>
-                              {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                                {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                              </div>
+                              <span className="font-medium">{module.title}</span>
                             </div>
-                            <span className="font-medium">{module.title}</span>
-                          </div>
 
-                          <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
-                            {module.lessons.map((lesson, j) => (
-                              <button
-                                key={j}
-                                onClick={() => handleLessonClick(lesson.url, i, j)}
-                                className={`
+                            <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
+                              {module.chapters.map((lesson, j) => (
+                                <button
+                                  key={j}
+                                  onClick={() => handleLessonClick(lesson.url, i, j)}
+                                  className={`
                                 block w-full text-left flex items-center gap-2 p-2 rounded-md 
                                 transition-all duration-200 ease-in-out
                                 hover:bg-accent/50 hover:text-primary hover:-translate-y-0.5
@@ -3727,19 +3808,19 @@ useEffect(() => {
                                 ${lesson.current ? 'bg-accent/50 text-primary font-medium' : ''}
                                 ${lesson.completed ? 'text-muted-foreground' : ''}
                               `}
-                              >
-                                <div className={`
+                                >
+                                  <div className={`
                                 w-3 h-3 rounded-full
                                 ${lesson.completed ? 'bg-primary/60' : lesson.current ? 'border-2 border-primary' : 'border border-muted-foreground'}
                               `} />
-                                <span className="text-sm">{lesson.name}</span>
-                              </button>
-                            ))}
+                                  <span className="text-sm">{lesson.name}</span>
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               </ScrollArea>
 
@@ -4452,8 +4533,8 @@ useEffect(() => {
         {currentView === 'tiktok' && <TikTokView />}
         {currentView === 'twitter' && <TwitterView />}
         {currentView === 'instagram' && <InstagramView />}
-        {currentView === 'document' && <DocumentView fileUrl={fileUrl} title={DocTitle}/>}
-        {currentView === 'audio' && <AudioView url={fileUrl} title={DocTitle}/>}
+        {currentView === 'document' && <DocumentView fileUrl={fileUrl} title={DocTitle} />}
+        {currentView === 'audio' && <AudioView url={fileUrl} title={DocTitle} />}
         {currentView === 'video' && <VideoView url={fileUrl} title={DocTitle} />}
       </div>
     </div>

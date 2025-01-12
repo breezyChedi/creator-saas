@@ -51,18 +51,27 @@ export async function GET(request: Request) {
         );
       }
 
-    if (courseData?.modules) {
-      courseData.modules = courseData.modules.map((module: any, index: number) => ({
-        ...module,
-        completed: false,
-        current: index === 0,
-        chapters: module.chapters?.map((chapter: any, chapterIndex: number) => ({
-          ...chapter,
+      if (courseData?.modules) {
+        courseData.modules = courseData.modules.map((module: any, index: number) => ({
+          ...module,
           completed: false,
-          current: index === 0 && chapterIndex === 0
-        })) || []
-      }));
-    }
+          current: index === 0,
+          chapters: Array.isArray(module.chapters) 
+            ? module.chapters.map((chapter: any, chapterIndex: number) => {
+                // If chapter is a string (just the name), convert it to an object
+                const chapterObj = typeof chapter === 'string' 
+                  ? { name: chapter }
+                  : chapter;
+      
+                return {
+                  ...chapterObj,
+                  completed: false,
+                  current: index === 0 && chapterIndex === 0
+                };
+              })
+            : []
+        }));
+      }
 
     // Save initialized data to user's collection
     await userDataRef.set(courseData);

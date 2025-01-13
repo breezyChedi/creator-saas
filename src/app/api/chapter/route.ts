@@ -90,10 +90,14 @@ export async function POST(request: Request) {
         ...currentModule,
         chapters: updatedChapters
       };
+
+      const updatedModules = [...courseData.modules];
+// Update the specific module
+        updatedModules[moduleIndex] = updatedModule;
   
       // Update the entire module to preserve all its properties
       await courseRef.update({
-        [`modules.${moduleIndex}`]: updatedModule
+        [`modules`]: updatedModules
       });
   
       return NextResponse.json({ success: true });

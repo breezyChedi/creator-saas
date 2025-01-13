@@ -40,32 +40,67 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  try {
-    const { courseId, moduleIndex, chapterIndex, updates } = await request.json();
-
-    if (!courseId || moduleIndex === undefined || chapterIndex === undefined || !updates) {
+    try {
+      const { courseId, moduleIndex, chapterIndex, updates } = await request.json();
+  
+      if (!courseId || moduleIndex === undefined || chapterIndex === undefined || !updates) {
+        return NextResponse.json(
+          { error: 'Missing required fields' },
+          { status: 400 }
+        );
+      }
+  
+      const db = getFirestore();
+      const courseRef = db.collection('resources').doc(courseId);
+  
+      // First, get the current course data
+      const courseDoc = await courseRef.get();
+      if (!courseDoc.exists) {
+        return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+      }
+  
+      const courseData = courseDoc.data();
+      const currentModule = courseData?.modules[moduleIndex];
+      
+      if (!currentModule) {
+        return NextResponse.json({ error: 'Module not found' }, { status: 404 });
+      }
+  
+      // Get the current chapter
+      const currentChapter = currentModule.chapters[chapterIndex];
+      if (!currentChapter) {
+        return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
+      }
+  
+      // Merge the updates with the existing chapter data
+      const updatedChapter = {
+        ...currentChapter,
+        content: updates.content !== undefined ? updates.content : currentChapter.content,
+        files: updates.files !== undefined ? updates.files : currentChapter.files,
+        quiz: updates.quiz !== undefined ? updates.quiz : currentChapter.quiz,
+        vidUrl: updates.vidUrl !== undefined ? updates.vidUrl : currentChapter.vidUrl
+      };
+  
+      // Create a new chapters array with the updated chapter
+      const updatedChapters = [...currentModule.chapters];
+      updatedChapters[chapterIndex] = updatedChapter;
+  
+      // Create updated module that preserves all module properties
+      const updatedModule = {
+        ...currentModule,
+        chapters: updatedChapters
+      };
+  
+      // Update the entire module to preserve all its properties
+      await courseRef.update({
+        [`modules.${moduleIndex}`]: updatedModule
+      });
+  
+      return NextResponse.json({ success: true });
+    } catch (error: any) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+        { error: 'Failed to update chapter', details: error.message },
+        { status: 500 }
       );
     }
-
-    const db = getFirestore();
-    const courseRef = db.collection('resources').doc(courseId);
-
-    // Update the specific chapter with new content
-    await courseRef.update({
-      [`modules.${moduleIndex}.chapters.${chapterIndex}.content`]: updates.content,
-      [`modules.${moduleIndex}.chapters.${chapterIndex}.files`]: updates.files,
-      [`modules.${moduleIndex}.chapters.${chapterIndex}.quiz`]: updates.quiz,
-      [`modules.${moduleIndex}.chapters.${chapterIndex}.vidUrl`]: updates.vidUrl
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Failed to update chapter', details: error.message },
-      { status: 500 }
-    );
   }
-}

@@ -3656,7 +3656,7 @@ export default function MentorshipPortal() {
     useEffect(() => {
       const fetchModules = async () => {
         try {
-          const response = await fetch(`/api/course-modules?courseId=${courseId}&userId=${userId}`);
+          const response = await fetch(`/api/course-modules-source?courseId=${courseId}&userId=${userId}`);
           const data = await response.json();
 
           if (data.modules) {
@@ -3702,28 +3702,36 @@ export default function MentorshipPortal() {
     }, [currentChapter]);
 
     const updateChapter = async (moduleIndex: number, chapterIndex: number, chapterData: Chapter) => {
+      console.log('Updating chapter with:', { courseId, moduleIndex, chapterIndex, chapterData });
       try {
-        // Make API call to update chapter in Firebase
+        // Extract only the fields that the API expects
+        const updates = {
+          content: chapterData.content,
+          files: chapterData.files,
+          quiz: chapterData.quiz || null,
+          vidUrl: chapterData.vidUrl
+        };
+    
         const response = await fetch('/api/chapter', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            courseId: courseId, // You'll need to have courseId available in your component
-            moduleIndex: moduleIndex,
-            chapterIndex: chapterIndex,
-            updates: chapterData
+            courseId,
+            moduleIndex,
+            chapterIndex,
+            updates  // Send the properly structured updates object
           }),
         });
-
+    
         if (!response.ok) {
           throw new Error('Failed to update chapter');
         }
-
+    
         // If Firebase update is successful, update local state
         setChapter(chapterData);
-
+    
       } catch (error) {
         console.error('Error updating chapter:', error);
         // You might want to show an error toast or handle the error in some way

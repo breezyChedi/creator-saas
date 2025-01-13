@@ -3191,6 +3191,8 @@ export default function MentorshipPortal() {
 
   interface CourseViewProps {
     courses: ResourceFormData[];
+    courseId: string;
+    userId: string;
   }
 
 
@@ -3204,6 +3206,7 @@ export default function MentorshipPortal() {
     completed: false,
     current: false
   });
+
 
   const CourseView = () => {
     const [courses, setCourses] = useState<any[]>([]);
@@ -3268,20 +3271,71 @@ export default function MentorshipPortal() {
         {isAdminView ? (
           <AdminCourseView courseId={resId} userId={userId} />
         ) : (
-          <MemberCourseView courses={courses} />
+          <MemberCourseView courseId={resId} userId={userId} courses={courses} />
         )}
       </div>
     );
   };
 
   // Member facing view
-  const MemberCourseView = ({ courses }: CourseViewProps) => {
+  const MemberCourseView = ({ courseId, userId, courses }: CourseViewProps) => {
     console.log("course:  ", courses)
+
+    const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
+    const [selectedChapterIndex, setSelectedChapterIndex] = useState(0);
+    const [currentChapter, setCurrentChapter] = useState(null);
+
+    const [modules, setModules] = useState([]);
+
+
+    useEffect(() => {
+      const fetchModules = async () => {
+        try {
+          const response = await fetch(`/api/course-modules?courseId=${courseId}&userId=${userId}`);
+          const data = await response.json();
+
+          if (data.modules) {
+            setModules(data.modules);
+          }
+          console.log(" modules set", data.modules)
+
+          const currentModuleIndex = data.modules.findIndex(
+            (module: any) => module.current === true
+          );
+
+          if (currentModuleIndex !== -1) {
+            setSelectedModuleIndex(currentModuleIndex);
+
+            // Find the current chapter within the current module
+            const currentChapterIndex = data.modules[currentModuleIndex].chapters.findIndex(
+              (chapter: any) => chapter.current === true
+            );
+
+            if (currentChapterIndex !== -1) {
+
+              setSelectedChapterIndex(currentChapterIndex);
+              console.log("mod: ", data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
+              setCurrentChapter(data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
+              
+            }
+          }
+
+          console.log("Curr chap", currentChapter)
+
+        } catch (error) {
+          console.error('Error fetching modules:', error);
+        }
+      };
+
+      fetchModules();
+    }, [courseId, userId]);
+
+
     return (
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Course: Advanced JavaScript Concepts {courses && courses.length > 0 ? courses[0].title : "No course selected"}</CardTitle>
+            <CardTitle>Course: {courses && courses.length > 0 ? courses[0].title : "No course selected"}</CardTitle>
             <Badge variant="secondary">Progress: 45%</Badge>
           </div>
         </CardHeader>
@@ -3296,7 +3350,9 @@ export default function MentorshipPortal() {
                   {/* Vertical line connecting modules */}
                   <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-border" />
 
-                  {[
+                  {
+                  
+                  /*[
                     {
                       title: "Introduction to Advanced JS",
                       completed: true,
@@ -3351,9 +3407,11 @@ export default function MentorshipPortal() {
                         { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
                       ]
                     }
-                  ].map((module, i) => {
+                  ]*/
+                  
+                  modules.map((module, i) => {
                     // Check if all lessons are completed
-                    const isModuleCompleted = module.lessons.every(lesson => lesson.completed);
+                    const isModuleCompleted = module.chapters.every(lesson => lesson.completed);
 
                     const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
                       try {
@@ -3398,7 +3456,7 @@ export default function MentorshipPortal() {
                           </div>
 
                           <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
-                            {module.lessons.map((lesson, j) => (
+                            {module.chapters.map((lesson, j) => (
                               <button
                                 key={j}
                                 onClick={() => handleLessonClick(lesson.url, i, j)}
@@ -3428,55 +3486,7 @@ export default function MentorshipPortal() {
               </ScrollArea>
 
               {/* Add New Module Section */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full mt-6">
-                    + Add New Module
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Add New Module</DialogTitle>
-                    <DialogDescription>
-                      Create a new module and add its submodules. Click save when you're done.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <label htmlFor="module-name" className="text-sm font-medium">
-                        Module Name
-                      </label>
-                      <input
-                        id="module-name"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        placeholder="Enter module name"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className="text-sm font-medium">
-                        Submodules
-                      </label>
-                      <div className="space-y-2">
-                        <input
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                          placeholder="Submodule 1"
-                        />
-                        <input
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                          placeholder="Submodule 2"
-                        />
-                        <Button variant="outline" className="w-full">
-                          + Add Another Submodule
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3">
-                    <Button variant="outline">Cancel</Button>
-                    <Button>Save Module</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              
             </div>
 
             {/* Content Area */}
@@ -3711,7 +3721,7 @@ export default function MentorshipPortal() {
           quiz: chapterData.quiz || null,
           vidUrl: chapterData.vidUrl
         };
-    
+
         const response = await fetch('/api/chapter', {
           method: 'POST',
           headers: {
@@ -3724,14 +3734,14 @@ export default function MentorshipPortal() {
             updates  // Send the properly structured updates object
           }),
         });
-    
+
         if (!response.ok) {
           throw new Error('Failed to update chapter');
         }
-    
+
         // If Firebase update is successful, update local state
-        setChapter(chapterData);
-    
+        setCurrentChapter(chapterData);
+
       } catch (error) {
         console.error('Error updating chapter:', error);
         // You might want to show an error toast or handle the error in some way
@@ -3888,7 +3898,7 @@ export default function MentorshipPortal() {
                               {module.chapters.map((lesson, j) => (
                                 <button
                                   key={j}
-                                  onClick={() => handleLessonClick(lesson.url, i, j)}
+                                  onClick={() => handleChapterClick(i, j)}
                                   className={`
                                 block w-full text-left flex items-center gap-2 p-2 rounded-md 
                                 transition-all duration-200 ease-in-out
@@ -3975,11 +3985,21 @@ export default function MentorshipPortal() {
                 <Card className="mb-4">
                   <CardContent className="p-4">
                     <div className="aspect-video bg-accent rounded-lg flex items-center justify-center">
-                      <HeroVideoDialogDemoTopInBottomOut />
+                      {currentChapter?.vidUrl ? (
+                        <HeroVideoDialog
+                          videoSrc={currentChapter.vidUrl}
+                          thumbnailSrc="/video-thumbnail.jpg" // You'll need a default thumbnail image
+                          thumbnailAlt={`${currentChapter.title} video`}
+                          animationStyle="top-in-bottom-out"
+                        />
+                      ) : (
+                        <div className="text-muted-foreground">
+                          No video available
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-
                 {/* Content Upload Section */}
                 <Card className="mb-4">
                   <CardHeader>
@@ -4001,11 +4021,12 @@ export default function MentorshipPortal() {
                                 if (file) {
                                   try {
                                     // Upload video file
-                                    const videoUrl = await uploadFile(file);
+                                    const videoUrl = await uploadFile(file,
+                                      `course-content/${courseId}/chapter-${selectedChapterIndex}`);
 
                                     // Create updated chapter data
                                     const updatedChapter = {
-                                      ...chapter,
+                                      ...currentChapter,
                                       vidUrl: videoUrl
                                     };
 
@@ -4047,13 +4068,15 @@ export default function MentorshipPortal() {
                                 if (file) {
                                   try {
                                     // Upload document file
-                                    const docUrl = await uploadFile(file);
+                                    const docUrl = await uploadFile(file,
+                                      `course-content/${courseId}/chapter-${selectedChapterIndex}`);
 
                                     // Create updated chapter data
+                                    console.log("chapter", currentChapter)
                                     const updatedChapter = {
-                                      ...chapter,
+                                      ...currentChapter,
                                       files: [
-                                        ...(chapter.files || []),
+                                        ...(currentChapter.files || []),
                                         {
                                           name: file.name,
                                           url: docUrl
@@ -4098,9 +4121,9 @@ export default function MentorshipPortal() {
                               try {
                                 // Create updated chapter data
                                 const updatedChapter = {
-                                  ...chapter,
+                                  ...currentChapter,
                                   files: [
-                                    ...(chapter.files || []),
+                                    ...(currentChapter.files || []),
                                     {
                                       name: 'External Resource',
                                       url: e.target.value

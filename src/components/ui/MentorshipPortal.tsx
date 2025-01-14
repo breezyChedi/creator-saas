@@ -3523,7 +3523,7 @@ export default function MentorshipPortal() {
                   </CardHeader>
                   <CardContent className="flex justify-center">
                     <div className="space-y-4 w-full max-w-md">
-                      {currentChapter.files.map((file, index) => (
+                      {currentChapter.files?.map((file, index) => (
                         <Card className="p-4" key={index}>
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2">
@@ -3539,7 +3539,7 @@ export default function MentorshipPortal() {
                             </Button>
                           </div>
                         </Card>
-                      ))}
+                      )) || []}
                       <Card className="p-4">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-2">

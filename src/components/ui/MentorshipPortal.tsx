@@ -3283,9 +3283,17 @@ export default function MentorshipPortal() {
 
     const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
     const [selectedChapterIndex, setSelectedChapterIndex] = useState(0);
-    const [currentChapter, setCurrentChapter] = useState(null);
+    const [currentChapter, setCurrentChapter] = useState<Chapter>({
+      title: '',
+      vidUrl: '',
+      content: '',
+      files: [],
+      completed: false,
+      current: false
+    });;
 
     const [modules, setModules] = useState([]);
+    const [tit,setTitle] = useState("")
 
 
     useEffect(() => {
@@ -3293,6 +3301,7 @@ export default function MentorshipPortal() {
         try {
           const response = await fetch(`/api/course-modules?courseId=${courseId}&userId=${userId}`);
           const data = await response.json();
+          setTitle(data.title)
 
           if (data.modules) {
             setModules(data.modules);
@@ -3316,7 +3325,7 @@ export default function MentorshipPortal() {
               setSelectedChapterIndex(currentChapterIndex);
               console.log("mod: ", data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
               setCurrentChapter(data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
-              
+
             }
           }
 
@@ -3335,7 +3344,7 @@ export default function MentorshipPortal() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Course: {courses && courses.length > 0 ? courses[0].title : "No course selected"}</CardTitle>
+            <CardTitle>Course: {tit}</CardTitle>
             <Badge variant="secondary">Progress: 45%</Badge>
           </div>
         </CardHeader>
@@ -3351,116 +3360,116 @@ export default function MentorshipPortal() {
                   <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-border" />
 
                   {
-                  
-                  /*[
-                    {
-                      title: "Introduction to Advanced JS",
-                      completed: true,
-                      lessons: [
-                        { name: "Course Overview", completed: true, current: false, url: "/lessons/course-overview" },
-                        { name: "Setting Up Environment", completed: true, current: false, url: "/lessons/setup" }
-                      ]
-                    },
-                    {
-                      title: "Closures & Scope",
-                      completed: false,
-                      current: true,
-                      lessons: [
-                        { name: "Understanding Closures", completed: true, current: false, url: "/lessons/closures" },
-                        { name: "Lexical Scope", completed: false, current: true, url: "/lessons/lexical-scope" },
-                        { name: "Practical Applications", completed: false, current: false, url: "/lessons/practical-closures" }
-                      ]
-                    },
-                    {
-                      title: "Prototypes & Inheritance",
-                      completed: false,
-                      lessons: [
-                        { name: "Prototype Chain", completed: false, current: false, url: "/lessons/prototype-chain" },
-                        { name: "Inheritance Patterns", completed: false, current: false, url: "/lessons/inheritance" }
-                      ]
-                    },
-                    {
-                      title: "Asynchronous JavaScript",
-                      completed: false,
-                      lessons: [
-                        { name: "Promises Deep Dive", completed: false, current: false, url: "/lessons/promises" },
-                        { name: "Async/Await Patterns", completed: false, current: false, url: "/lessons/async-await" },
-                        { name: "Error Handling", completed: false, current: false, url: "/lessons/error-handling" }
-                      ]
-                    },
-                    {
-                      title: "Design Patterns",
-                      completed: false,
-                      lessons: [
-                        { name: "Singleton Pattern", completed: false, current: false, url: "/lessons/singleton" },
-                        { name: "Factory Pattern", completed: false, current: false, url: "/lessons/factory" },
-                        { name: "Observer Pattern", completed: false, current: false, url: "/lessons/observer" },
-                        { name: "Module Pattern", completed: false, current: false, url: "/lessons/module-pattern" }
-                      ]
-                    },
-                    {
-                      title: "Performance Optimization",
-                      completed: false,
-                      lessons: [
-                        { name: "Memory Management", completed: false, current: false, url: "/lessons/memory" },
-                        { name: "Code Splitting", completed: false, current: false, url: "/lessons/code-splitting" },
-                        { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
-                      ]
-                    }
-                  ]*/
-                  
-                  modules.map((module, i) => {
-                    // Check if all lessons are completed
-                    const isModuleCompleted = module.chapters.every(lesson => lesson.completed);
 
-                    const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
-                      try {
-                        // Mark the lesson as completed
-                        const response = await fetch('/api/course/progress', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            moduleIndex,
-                            lessonIndex,
-                            completed: true
-                          })
-                        });
-
-                        if (!response.ok) {
-                          throw new Error('Failed to update lesson progress');
-                        }
-
-                        // Navigate to lesson content
-                        window.location.href = lessonUrl;
-                      } catch (error) {
-                        console.error('Error updating lesson progress:', error);
+                    /*[
+                      {
+                        title: "Introduction to Advanced JS",
+                        completed: true,
+                        lessons: [
+                          { name: "Course Overview", completed: true, current: false, url: "/lessons/course-overview" },
+                          { name: "Setting Up Environment", completed: true, current: false, url: "/lessons/setup" }
+                        ]
+                      },
+                      {
+                        title: "Closures & Scope",
+                        completed: false,
+                        current: true,
+                        lessons: [
+                          { name: "Understanding Closures", completed: true, current: false, url: "/lessons/closures" },
+                          { name: "Lexical Scope", completed: false, current: true, url: "/lessons/lexical-scope" },
+                          { name: "Practical Applications", completed: false, current: false, url: "/lessons/practical-closures" }
+                        ]
+                      },
+                      {
+                        title: "Prototypes & Inheritance",
+                        completed: false,
+                        lessons: [
+                          { name: "Prototype Chain", completed: false, current: false, url: "/lessons/prototype-chain" },
+                          { name: "Inheritance Patterns", completed: false, current: false, url: "/lessons/inheritance" }
+                        ]
+                      },
+                      {
+                        title: "Asynchronous JavaScript",
+                        completed: false,
+                        lessons: [
+                          { name: "Promises Deep Dive", completed: false, current: false, url: "/lessons/promises" },
+                          { name: "Async/Await Patterns", completed: false, current: false, url: "/lessons/async-await" },
+                          { name: "Error Handling", completed: false, current: false, url: "/lessons/error-handling" }
+                        ]
+                      },
+                      {
+                        title: "Design Patterns",
+                        completed: false,
+                        lessons: [
+                          { name: "Singleton Pattern", completed: false, current: false, url: "/lessons/singleton" },
+                          { name: "Factory Pattern", completed: false, current: false, url: "/lessons/factory" },
+                          { name: "Observer Pattern", completed: false, current: false, url: "/lessons/observer" },
+                          { name: "Module Pattern", completed: false, current: false, url: "/lessons/module-pattern" }
+                        ]
+                      },
+                      {
+                        title: "Performance Optimization",
+                        completed: false,
+                        lessons: [
+                          { name: "Memory Management", completed: false, current: false, url: "/lessons/memory" },
+                          { name: "Code Splitting", completed: false, current: false, url: "/lessons/code-splitting" },
+                          { name: "Lazy Loading", completed: false, current: false, url: "/lessons/lazy-loading" }
+                        ]
                       }
-                    };
+                    ]*/
 
-                    return (
-                      <div key={i} className="mb-6 relative">
-                        <div className={`
+                    modules.map((module, i) => {
+                      // Check if all lessons are completed
+                      const isModuleCompleted = module.chapters.every(lesson => lesson.completed);
+
+                      const handleLessonClick = async (lessonUrl: string, moduleIndex: number, lessonIndex: number) => {
+                        try {
+                          // Mark the lesson as completed
+                          const response = await fetch('/api/course/progress', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              moduleIndex,
+                              lessonIndex,
+                              completed: true
+                            })
+                          });
+
+                          if (!response.ok) {
+                            throw new Error('Failed to update lesson progress');
+                          }
+
+                          // Navigate to lesson content
+                          window.location.href = lessonUrl;
+                        } catch (error) {
+                          console.error('Error updating lesson progress:', error);
+                        }
+                      };
+
+                      return (
+                        <div key={i} className="mb-6 relative">
+                          <div className={`
                         border rounded-lg p-4
                         ${module.current ? 'border-primary bg-accent shadow-sm' : 'border-border'}
                       `}>
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className={`
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={`
                             w-5 h-5 rounded-full z-10 flex items-center justify-center
                             ${isModuleCompleted ? 'bg-primary' : module.current ? 'border-2 border-primary' : 'border-2 border-muted-foreground'}
                           `}>
-                              {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                                {isModuleCompleted && <Check className="h-3 w-3 text-primary-foreground" />}
+                              </div>
+                              <span className="font-medium">{module.title}</span>
                             </div>
-                            <span className="font-medium">{module.title}</span>
-                          </div>
 
-                          <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
-                            {module.chapters.map((lesson, j) => (
-                              <button
-                                key={j}
-                                onClick={() => handleLessonClick(lesson.url, i, j)}
-                                className={`
+                            <div className="space-y-2 ml-6 border-l-2 pl-4 border-border">
+                              {module.chapters.map((lesson, j) => (
+                                <button
+                                  key={j}
+                                  onClick={() => handleLessonClick(lesson.url, i, j)}
+                                  className={`
                                 block w-full text-left flex items-center gap-2 p-2 rounded-md 
                                 transition-all duration-200 ease-in-out
                                 hover:bg-accent/50 hover:text-primary hover:-translate-y-0.5
@@ -3469,24 +3478,24 @@ export default function MentorshipPortal() {
                                 ${lesson.current ? 'bg-accent/50 text-primary font-medium' : ''}
                                 ${lesson.completed ? 'text-muted-foreground' : ''}
                               `}
-                              >
-                                <div className={`
+                                >
+                                  <div className={`
                                 w-3 h-3 rounded-full
                                 ${lesson.completed ? 'bg-primary/60' : lesson.current ? 'border-2 border-primary' : 'border border-muted-foreground'}
                               `} />
-                                <span className="text-sm">{lesson.name}</span>
-                              </button>
-                            ))}
+                                  <span className="text-sm">{lesson.name}</span>
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               </ScrollArea>
 
               {/* Add New Module Section */}
-              
+
             </div>
 
             {/* Content Area */}
@@ -3495,10 +3504,21 @@ export default function MentorshipPortal() {
                 <h3 className="font-semibold text-lg mb-4">Lexical Scope</h3>
 
                 {/* Video Player */}
-                <Card className="mb-6">
+                <Card className="mb-4">
                   <CardContent className="p-4">
                     <div className="aspect-video bg-accent rounded-lg flex items-center justify-center">
-                      <HeroVideoDialogDemoTopInBottomOut />
+                      {currentChapter?.vidUrl ? (
+                        <HeroVideoDialog
+                          videoSrc={currentChapter.vidUrl}
+                          thumbnailSrc="/video-thumbnail.jpg" // You'll need a default thumbnail image
+                          thumbnailAlt={`${currentChapter.title} video`}
+                          animationStyle="top-in-bottom-out"
+                        />
+                      ) : (
+                        <div className="text-muted-foreground">
+                          No video available
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -3514,15 +3534,23 @@ export default function MentorshipPortal() {
                   </CardHeader>
                   <CardContent className="flex justify-center">
                     <div className="space-y-4 w-full max-w-md">
-                      <Card className="p-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-5 w-5" />
-                            <span>Notes.pdf</span>
+                      {currentChapter.files.map((file, index) => (
+                        <Card className="p-4" key={index}>
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-5 w-5" />
+                              <span>{file.name}</span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(file.url, '_blank')}
+                            >
+                              Download
+                            </Button>
                           </div>
-                          <Button variant="outline" size="sm">Download</Button>
-                        </div>
-                      </Card>
+                        </Card>
+                      ))}
                       <Card className="p-4">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-2">

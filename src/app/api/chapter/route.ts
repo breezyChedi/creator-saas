@@ -94,6 +94,8 @@ export async function POST(request: Request) {
       const updatedModules = [...courseData.modules];
 // Update the specific module
         updatedModules[moduleIndex] = updatedModule;
+
+        console.log("update module ",updatedModule)
   
       // Update the entire module to preserve all its properties
       await courseRef.update({

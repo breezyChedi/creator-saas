@@ -3732,12 +3732,28 @@ export default function MentorshipPortal() {
       console.log('Updating chapter with:', { courseId, moduleIndex, chapterIndex, chapterData });
       try {
         // Extract only the fields that the API expects
+        /*
         const updates = {
           content: chapterData.content,
           files: chapterData.files,
           quiz: chapterData.quiz || null,
           vidUrl: chapterData.vidUrl
         };
+        */
+
+        const updates = {
+          ...(chapterData.content !== undefined && { content: chapterData.content }),
+          ...(chapterData.files !== undefined && { files: chapterData.files }),
+          ...(chapterData.quiz !== undefined && { quiz: chapterData.quiz }),
+          ...(chapterData.vidUrl !== undefined && { vidUrl: chapterData.vidUrl })
+        };
+
+        console.log('Sending request with:', {
+          courseId,
+          moduleIndex,
+          chapterIndex,
+          updates
+        });
 
         const response = await fetch('/api/chapter', {
           method: 'POST',

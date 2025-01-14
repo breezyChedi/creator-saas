@@ -172,7 +172,7 @@ interface CourseData {
 }
 
 interface Chapter {
-  title: string;
+  name: string,
   vidUrl?: string;
   content?: string;
   files?: Array<{ name: string; url: string; }>;
@@ -3198,14 +3198,7 @@ export default function MentorshipPortal() {
 
 
 
-  const [chapter, setChapter] = useState<Chapter>({
-    title: '',
-    vidUrl: '',
-    content: '',
-    files: [],
-    completed: false,
-    current: false
-  });
+
 
 
   const CourseView = () => {
@@ -3284,7 +3277,7 @@ export default function MentorshipPortal() {
     const [selectedModuleIndex, setSelectedModuleIndex] = useState(0);
     const [selectedChapterIndex, setSelectedChapterIndex] = useState(0);
     const [currentChapter, setCurrentChapter] = useState<Chapter>({
-      title: '',
+      name: '',
       vidUrl: '',
       content: '',
       files: [],
@@ -3313,23 +3306,19 @@ export default function MentorshipPortal() {
           );
 
           if (currentModuleIndex !== -1) {
-            setSelectedModuleIndex(currentModuleIndex);
-
             // Find the current chapter within the current module
             const currentChapterIndex = data.modules[currentModuleIndex].chapters.findIndex(
               (chapter: any) => chapter.current === true
             );
-
+    
             if (currentChapterIndex !== -1) {
-
+              // Set the current chapter directly from data instead of using state variables
+              const currentChapter = data.modules[currentModuleIndex].chapters[currentChapterIndex];
+              setSelectedModuleIndex(currentModuleIndex);
               setSelectedChapterIndex(currentChapterIndex);
-              console.log("mod: ", data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
-              setCurrentChapter(data.modules[selectedModuleIndex].chapters[selectedChapterIndex])
-
+              setCurrentChapter(currentChapter);
             }
           }
-
-          console.log("Curr chap", currentChapter)
 
         } catch (error) {
           console.error('Error fetching modules:', error);
@@ -3418,7 +3407,7 @@ export default function MentorshipPortal() {
                       }
                     ]*/
 
-                    modules.map((module, i) => {
+                    (modules ?? []).map((module, i) => {
                       // Check if all lessons are completed
                       const isModuleCompleted = module.chapters.every(lesson => lesson.completed);
 
@@ -3511,7 +3500,7 @@ export default function MentorshipPortal() {
                         <HeroVideoDialog
                           videoSrc={currentChapter.vidUrl}
                           thumbnailSrc="/video-thumbnail.jpg" // You'll need a default thumbnail image
-                          thumbnailAlt={`${currentChapter.title} video`}
+                          thumbnailAlt={`${currentChapter.name} video`}
                           animationStyle="top-in-bottom-out"
                         />
                       ) : (

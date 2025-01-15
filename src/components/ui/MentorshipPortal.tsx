@@ -3593,7 +3593,7 @@ export default function MentorshipPortal() {
 
                           <Card className="p-4">
                             <div className="flex justify-between items-center gap-4">
-                              <Input placeholder="feedback" className="max-w-xs" />
+                              <Input placeholder=">" className="max-w-xs" />
                               <Button>Submit Answer</Button>
                             </div>
                           </Card>

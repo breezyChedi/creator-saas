@@ -129,7 +129,7 @@ import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { toast } from '@/hooks/use-toast';
 import { Textarea } from './textarea';
-import {  Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from './menubar';
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from './menubar';
 import { cn } from '@/lib/utils';
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
@@ -4377,23 +4377,33 @@ export default function MentorshipPortal() {
                         </div>
 
                         <div className="space-y-4">
-                          {/* Question list/preview */}
-                          <div className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="font-medium">Question 1</div>
-                              <div className="flex gap-2">
-                                <Button variant="ghost" size="icon">
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                          {currentChapter?.quiz?.questions?.map((question, index) => (
+                            <div key={index} className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="font-medium">Question {index + 1}</div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                      setQuestion(question.question);
+                                      setAnswerOptions(question.answerOptions);
+                                      setFeedback(question.feedback);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
+                              <div className="text-sm text-muted-foreground mt-1">
+                                Multiple Choice • {question.answerOptions.length} Options
+                              </div>
+                              
                             </div>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              Multiple Choice • 4 Options
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </div>

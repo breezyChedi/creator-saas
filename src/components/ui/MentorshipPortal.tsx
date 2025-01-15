@@ -124,13 +124,14 @@ import {
 } from "lucide-react";
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Label, DropdownMenuSeparator, RadioGroup } from '@radix-ui/react-dropdown-menu';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Label, DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { toast } from '@/hooks/use-toast';
 import { Textarea } from './textarea';
-import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from './menubar';
+import {  Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from './menubar';
 import { cn } from '@/lib/utils';
+import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import Marquee from './marquee';
 import SpacesView from './chatView';
@@ -3286,7 +3287,7 @@ export default function MentorshipPortal() {
     });;
 
     const [modules, setModules] = useState([]);
-    const [tit,setTitle] = useState("")
+    const [tit, setTitle] = useState("")
 
 
     useEffect(() => {
@@ -3310,7 +3311,7 @@ export default function MentorshipPortal() {
             const currentChapterIndex = data.modules[currentModuleIndex].chapters.findIndex(
               (chapter: any) => chapter.current === true
             );
-    
+
             if (currentChapterIndex !== -1) {
               // Set the current chapter directly from data instead of using state variables
               const currentChapter = data.modules[currentModuleIndex].chapters[currentChapterIndex];
@@ -3624,6 +3625,53 @@ export default function MentorshipPortal() {
 
     const [modules, setModules] = useState([]);
 
+    const [question, setQuestion] = useState("");
+    const [answerOptions, setAnswerOptions] = useState([
+      { text: "", isCorrect: false }
+    ]);
+    const [feedback, setFeedback] = useState("");
+
+    const addAnswerOption = () => {
+      setAnswerOptions([...answerOptions, { text: "", isCorrect: false }]);
+    };
+
+    // Add this function to handle removing answer options
+    const removeAnswerOption = (index: number) => {
+      setAnswerOptions(answerOptions.filter((_, i) => i !== index));
+    };
+
+    const updateAnswerOption = (index: number, field: 'text' | 'isCorrect', value: string | boolean) => {
+      const newOptions = [...answerOptions];
+      newOptions[index][field] = value;
+      setAnswerOptions(newOptions);
+    };
+
+    const addQuestion = () => {
+      const questionObject = {
+        question,
+        answerOptions,
+        feedback
+      };
+
+      // Create a copy of the current chapter
+      const updatedChapter = {
+        ...currentChapter,
+        quiz: {
+          questions: [
+            ...(currentChapter.quiz?.questions || []),
+            questionObject
+          ]
+        }
+      };
+
+      // Call updateChapter with the current module and chapter indices
+      updateChapter(selectedModuleIndex, selectedChapterIndex, updatedChapter);
+
+      // Reset form
+      setQuestion("");
+      setAnswerOptions([{ text: "", isCorrect: false }]);
+      setFeedback("");
+    };
 
 
     const handleFileUpload = async (file: File) => {
@@ -3754,6 +3802,8 @@ export default function MentorshipPortal() {
           chapterIndex,
           updates
         });
+
+
 
         const response = await fetch('/api/chapter', {
           method: 'POST',
@@ -4197,58 +4247,56 @@ export default function MentorshipPortal() {
                           <label className="block text-sm font-medium mb-2">Question</label>
                           <input
                             type="text"
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
                             placeholder="Enter your question"
                             className="w-full rounded-md border border-input px-3 py-2"
                           />
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-medium mb-2">Answer Type</label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select answer type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="radio">Single Choice (Radio)</SelectItem>
-                              <SelectItem value="checkbox">Multiple Choice (Checkbox)</SelectItem>
-                              <SelectItem value="short">Short Text</SelectItem>
-                              <SelectItem value="long">Long Text</SelectItem>
-                              <SelectItem value="truefalse">True/False</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+
 
                         <div className="space-y-4">
                           <label className="block text-sm font-medium">Answer Options</label>
 
                           <div className="space-y-3">
-                            {/* Dynamic answer options based on type */}
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="text"
-                                placeholder="Enter answer option"
-                                className="flex-1 rounded-md border border-input px-3 py-2"
-                              />
-                              <div className="flex items-center gap-2">
+                            {answerOptions.map((option, index) => (
+                              <div key={index} className="flex items-center gap-2">
                                 <input
-                                  type="checkbox"
-                                  id="correct-1"
-                                  className="h-4 w-4 rounded border-gray-300"
+                                  type="text"
+                                  value={option.text}
+                                  onChange={(e) => updateAnswerOption(index, 'text', e.target.value)}
+                                  placeholder="Enter answer option"
+                                  className="flex-1 rounded-md border border-input px-3 py-2"
                                 />
-                                <label htmlFor="correct-1" className="text-sm">
-                                  Correct
-                                </label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    id={`correct-${index}`}
+                                    checked={option.isCorrect}
+                                    onChange={(e) => updateAnswerOption(index, 'isCorrect', e.target.checked)}
+                                    className="h-4 w-4 rounded border-gray-300"
+                                  />
+                                  <label htmlFor={`correct-${index}`} className="text-sm">
+                                    Correct
+                                  </label>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => removeAnswerOption(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                               </div>
-                              <Button variant="ghost" size="icon">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            ))}
                           </div>
 
                           <Button
                             variant="outline"
                             size="sm"
                             className="w-full"
+                            onClick={addAnswerOption}
                           >
                             <Plus className="h-4 w-4 mr-2" />
                             Add Answer Option
@@ -4258,13 +4306,18 @@ export default function MentorshipPortal() {
                         <div className="space-y-2">
                           <label className="block text-sm font-medium">Feedback</label>
                           <textarea
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
                             placeholder="Enter feedback for correct/incorrect answers"
                             className="w-full rounded-md border border-input px-3 py-2 min-h-[80px]"
                           />
                         </div>
 
                         <div className="flex gap-2">
-                          <Button className="flex-1">
+                          <Button
+                            className="flex-1"
+                            onClick={addQuestion}
+                          >
                             <Plus className="h-4 w-4 mr-2" />
                             Add Question
                           </Button>
@@ -4289,24 +4342,20 @@ export default function MentorshipPortal() {
                                     <CardDescription>Test your understanding of the concepts covered</CardDescription>
                                   </CardHeader>
                                   <CardContent className="space-y-4">
-                                    <div className="space-y-4">
-                                      <div className="font-medium">Question 1</div>
-                                      <div className="text-sm">What is the main purpose of closures in JavaScript?</div>
-                                      <RadioGroup className="space-y-2">
-                                        <div className="flex items-center space-x-2">
-                                          <RadioGroup value="a" id="a" />
-                                          <Label htmlFor="a">Data privacy and encapsulation</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                          <RadioGroup value="b" id="b" />
-                                          <Label htmlFor="b">Memory optimization</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                          <RadioGroup value="c" id="c" />
-                                          <Label htmlFor="c">Code organization</Label>
-                                        </div>
-                                      </RadioGroup>
-                                    </div>
+                                    {currentChapter?.quiz?.questions.map((question, index) => (
+                                      <div key={index} className="space-y-4">
+                                        <div className="font-medium">Question {index + 1}</div>
+                                        <div className="text-sm">{question.question}</div>
+                                        <RadioGroup className="space-y-2">
+                                          {question.answerOptions.map((option, optionIndex) => (
+                                            <div key={optionIndex} className="flex items-center space-x-2">
+                                              <RadioGroupItem value={option.text} id={`q${index}-${optionIndex}`} />
+                                              <Label htmlFor={`q${index}-${optionIndex}`}>{option.text}</Label>
+                                            </div>
+                                          ))}
+                                        </RadioGroup>
+                                      </div>
+                                    ))}
                                   </CardContent>
                                   <CardFooter>
                                     <Button className="w-full">Submit Answer</Button>

@@ -41,8 +41,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-      const { courseId, moduleIndex, chapterIndex, updates } = await request.json();
-  
+        console.log("Starting POST request");
+        const body = await request.json();
+        console.log("Parsed request body:", body);
+        
+        const { courseId, moduleIndex, chapterIndex, updates } = body;
+        console.log("Destructured values:", { courseId, moduleIndex, chapterIndex, updates });
+
       if (!courseId || moduleIndex === undefined || chapterIndex === undefined || !updates) {
         return NextResponse.json(
           { error: 'Missing required fields' },
@@ -73,13 +78,24 @@ export async function POST(request: Request) {
       }
   
       // Merge the updates with the existing chapter data
+      /*
       const updatedChapter = {
         ...currentChapter,
         content: updates.content !== undefined ? updates.content : currentChapter.content,
         files: updates.files !== undefined ? updates.files : currentChapter.files,
         quiz: updates.quiz !== undefined ? updates.quiz : currentChapter.quiz,
         vidUrl: updates.vidUrl !== undefined ? updates.vidUrl : currentChapter.vidUrl
+      };*/
+
+      const updatedChapter = {
+        ...currentChapter
       };
+
+      // Only update fields that exist in the updates object
+      if ('files' in updates) updatedChapter.files = updates.files;
+      if ('content' in updates) updatedChapter.content = updates.content;
+      if ('quiz' in updates) updatedChapter.quiz = updates.quiz;
+      if ('vidUrl' in updates) updatedChapter.vidUrl = updates.vidUrl;
   
       // Create a new chapters array with the updated chapter
       const updatedChapters = [...currentModule.chapters];
@@ -98,6 +114,8 @@ export async function POST(request: Request) {
         console.log("update module ",updatedModule)
   
       // Update the entire module to preserve all its properties
+
+
       await courseRef.update({
         [`modules`]: updatedModules
       });

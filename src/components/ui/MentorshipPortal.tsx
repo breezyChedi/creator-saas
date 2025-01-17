@@ -173,15 +173,17 @@ interface CourseData {
 }
 
 interface Chapter {
-  name: string,
+  name: string;
   vidUrl?: string;
   content?: string;
   files?: Array<{ name: string; url: string; }>;
   quiz?: {
     questions: Array<{
       question: string;
-      options: string[];
-      correctAnswer: number;
+      answerOptions: Array<{
+        text: string;
+        isCorrect: boolean;
+      }>;
       feedback: string;
     }>;
   };
@@ -1344,7 +1346,7 @@ const ScheduleView = () => {
             <div className="space-y-8">
               {groupedTasks.overdue.length > 0 && (
                 <div>
-                  <h3 className="text-red-500 font-semibold mb-4">Overdue</h3>
+                  <h3 className="text-red-500 font-semibold mb-4">Passed</h3>
                   <div className="space-y-4">
                     {groupedTasks.overdue.map((task) => renderTaskCard(task))}
                   </div>
@@ -3329,6 +3331,77 @@ export default function MentorshipPortal() {
       fetchModules();
     }, [courseId, userId]);
 
+    const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
+    const [submittedQuestions, setSubmittedQuestions] = useState<boolean[]>([]);
+
+    // Example usage in your frontend nextChapter function
+    const nextChapter = async (currentChapter: Chapter, moduleIndex: number, chapterIndex: number) => {
+      try {
+        const response = await fetch('/api/next-chapter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            courseId,
+            moduleIndex,
+            chapterIndex,
+            userId: auth.currentUser.uid
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error);
+        }
+
+        // Update local state with the new course data
+        setModules(data.updatedCourseData.modules);
+
+        let newModuleIndex = moduleIndex;
+        let newChapterIndex = chapterIndex;
+        let newCurrentChapter = null;
+
+        // Check if there's a next chapter in the current module
+        if (chapterIndex < data.updatedCourseData.modules[moduleIndex].chapters.length - 1) {
+          newChapterIndex = chapterIndex + 1;
+          newCurrentChapter = data.updatedCourseData.modules[moduleIndex].chapters[newChapterIndex];
+        }
+        // If not, check if there's a next module
+        else if (moduleIndex < data.updatedCourseData.modules.length - 1) {
+          newModuleIndex = moduleIndex + 1;
+          newChapterIndex = 0;
+          newCurrentChapter = data.updatedCourseData.modules[newModuleIndex].chapters[0];
+        }
+
+        // Update the current chapter and indices
+        if (newCurrentChapter) {
+          setCurrentChapter(newCurrentChapter);
+          setSelectedModuleIndex(newModuleIndex);
+          setSelectedChapterIndex(newChapterIndex);
+        }
+
+        // Reset quiz state
+        setSelectedAnswers([]);
+        setSubmittedQuestions([]);
+
+        toast({
+          title: "Progress Updated",
+          description: "Moving to next chapter",
+          variant: "default"
+        });
+
+      } catch (error) {
+        console.error('Error updating progress:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update progress",
+          variant: "destructive"
+        });
+      }
+    };
+
 
     return (
       <Card>
@@ -3437,6 +3510,8 @@ export default function MentorshipPortal() {
                           console.error('Error updating lesson progress:', error);
                         }
                       };
+
+
 
                       return (
                         <div key={i} className="mb-6 relative">
@@ -3561,44 +3636,97 @@ export default function MentorshipPortal() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
-                      <Card className="p-6">
-                        <div className="space-y-4">
-                          <Card className="p-4">
-                            <div className="font-medium">Question 1</div>
-                            <div className="text-sm mt-2">What is the main purpose of closures in JavaScript?</div>
-                          </Card>
+                      {currentChapter?.quiz?.questions.map((question, questionIndex) => (
+                        <Card key={questionIndex} className="p-6">
+                          <div className="space-y-4">
+                            <Card className="p-4">
+                              <div className="font-medium">Question {questionIndex + 1}</div>
+                              <div className="text-sm mt-2">{question.question}</div>
+                            </Card>
 
-                          <Card className="p-4">
-                            <RadioGroup className="space-y-3">
-                              <Card className="p-3 hover:bg-accent transition-colors">
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroup value="a" id="a" />
-                                  <Label htmlFor="a">Data privacy and encapsulation</Label>
-                                </div>
-                              </Card>
-                              <Card className="p-3 hover:bg-accent transition-colors">
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroup value="b" id="b" />
-                                  <Label htmlFor="b">Memory optimization</Label>
-                                </div>
-                              </Card>
-                              <Card className="p-3 hover:bg-accent transition-colors">
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroup value="c" id="c" />
-                                  <Label htmlFor="c">Code organization</Label>
-                                </div>
-                              </Card>
-                            </RadioGroup>
-                          </Card>
+                            <Card className="p-4">
+                              <RadioGroup
+                                className="space-y-3"
+                                value={selectedAnswers[questionIndex]}
+                                onValueChange={(value) => {
+                                  const newAnswers = [...selectedAnswers];
+                                  newAnswers[questionIndex] = value;
+                                  setSelectedAnswers(newAnswers);
+                                }}
+                              >
+                                {question.answerOptions.map((option, optionIndex) => (
+                                  <Card
+                                    key={optionIndex}
+                                    className={cn(
+                                      "p-3 hover:bg-accent transition-colors",
+                                      submittedQuestions[questionIndex] && selectedAnswers[questionIndex] === optionIndex.toString() && (
+                                        option.isCorrect
+                                          ? "bg-green-100 dark:bg-green-900"
+                                          : "bg-red-100 dark:bg-red-900"
+                                      )
+                                    )}
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem
+                                        value={optionIndex.toString()}
+                                        id={`q${questionIndex}-o${optionIndex}`}
+                                        disabled={submittedQuestions[questionIndex]}
+                                      />
+                                      <Label htmlFor={`q${questionIndex}-o${optionIndex}`}>
+                                        {option.text}
+                                      </Label>
+                                    </div>
+                                  </Card>
+                                ))}
+                              </RadioGroup>
+                            </Card>
 
-                          <Card className="p-4">
-                            <div className="flex justify-between items-center gap-4">
-                              <Input placeholder=">" className="max-w-xs" />
-                              <Button>Submit Answer</Button>
-                            </div>
-                          </Card>
-                        </div>
-                      </Card>
+                            <Card className="p-4">
+                              <div className="flex justify-between items-center gap-4">
+                                <div className="max-w-xs text-sm text-muted-foreground">
+                                  {submittedQuestions[questionIndex] && question.feedback}
+                                </div>
+                                <Button
+                                  onClick={() => {
+                                    // Mark current question as submitted
+                                    const newSubmitted = [...submittedQuestions];
+                                    newSubmitted[questionIndex] = true;
+                                    setSubmittedQuestions(newSubmitted);
+                                  
+                                    // Check if all questions are now submitted
+                                    const allQuestionsSubmitted = newSubmitted.every(submitted => submitted);
+                                    
+                                    if (allQuestionsSubmitted) {
+                                      // Check if all answers are correct
+                                      const allAnswersCorrect = currentChapter.quiz?.questions.every((question, qIndex) => {
+                                        const selectedOptionIndex = parseInt(selectedAnswers[qIndex]);
+                                        return question.answerOptions[selectedOptionIndex]?.isCorrect;
+                                      });
+                                  
+                                      if (allAnswersCorrect) {
+                                        // If all answers are correct, trigger nextChapter
+                                        nextChapter(currentChapter, selectedModuleIndex, selectedChapterIndex);
+                                      } else {
+                                        toast({
+                                          title: "Review Needed",
+                                          description: "Please review your answers and try again",
+                                          variant: "destructive"
+                                        });
+                                      }
+                                    }
+                                  }}
+                                  disabled={
+                                    submittedQuestions[questionIndex] ||
+                                    !selectedAnswers[questionIndex]
+                                  }
+                                >
+                                  Submit Answer
+                                </Button>
+                              </div>
+                            </Card>
+                          </div>
+                        </Card>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -3630,6 +3758,8 @@ export default function MentorshipPortal() {
       { text: "", isCorrect: false }
     ]);
     const [feedback, setFeedback] = useState("");
+
+
 
     const addAnswerOption = () => {
       setAnswerOptions([...answerOptions, { text: "", isCorrect: false }]);
@@ -3831,6 +3961,7 @@ export default function MentorshipPortal() {
       }
     };
 
+    
     return (
       <Card>
         <CardHeader>
@@ -4401,7 +4532,7 @@ export default function MentorshipPortal() {
                               <div className="text-sm text-muted-foreground mt-1">
                                 Multiple Choice • {question.answerOptions.length} Options
                               </div>
-                              
+
                             </div>
                           ))}
                         </div>
